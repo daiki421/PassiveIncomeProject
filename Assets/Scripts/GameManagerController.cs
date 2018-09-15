@@ -10,7 +10,7 @@ public class GameManagerController : MonoBehaviour {
 	int[] countDel;
 	PlayerController pScript;
 	int dropBlockNum = 0;
-	GameObject player;
+	public GameObject player;
 	private GameObject firstCollider;
 	private GameObject lastCollider;
 	private string currentName;
@@ -24,7 +24,7 @@ public class GameManagerController : MonoBehaviour {
 	void Start ()
 	{
 		GameObject mainCam = Camera.main.gameObject;
-		player = GameObject.Find ("Player");
+//		player = GameObject.Find ("Player");
 		bcScript = mainCam.GetComponent<BlockController> ();
 		bsScript = mainCam.GetComponent<BlockStatusController> ();
 		pScript = player.GetComponent<PlayerController> ();
@@ -98,17 +98,7 @@ public class GameManagerController : MonoBehaviour {
 		comparisonObj = null;
 		// Rayを遮断
 		GameObject.Find("RayCutMain").GetComponent<BoxCollider> ().enabled = true;
-
 		StartCoroutine ("movePlayer");
-//		for (int i = 0; i < readCrumbsList.Count; i++) {
-//			pScript.movePlayer (moveListX [i], moveListY [i]);
-////			print("(moveListX, moveListY) = " + moveListX [i] + ", " + moveListY [i]);
-////			print("(moveX, moveY) = "+(-1.2f + moveListX [i] * 0.4f) + ", " + (0.8f - moveListY [i] * 0.4f - 0.6f));
-////			print ("-------------------------------------------------------");
-//		}
-
-
-
 		GameObject[] lines = GameObject.FindGameObjectsWithTag("Line");
 		foreach (GameObject line in lines) {
 			Destroy(line);
@@ -118,8 +108,10 @@ public class GameManagerController : MonoBehaviour {
 	// 時間差でブロックを動かす
 	public IEnumerator MoveBlock(float wait)
 	{
+		int minJ = 100;
 		yield return new WaitForSeconds(wait);
 		countDel = new int[bcScript.getRow()];
+//		print ("CountDel=" + countDel);
 		// 列ごとに空白マスの個数を算出、ブロックを下に移動
 		for (int i = 0; i < bcScript.getRow (); i++) {
 			for (int j = bcScript.getLine () - 1; j >= 0; j--) {
@@ -142,8 +134,22 @@ public class GameManagerController : MonoBehaviour {
 
 						// 落下
 						iTween.MoveBy (dropBlock, iTween.Hash ("y", dropBlockPosY));
-						yield return new WaitForSeconds(0.05f);
-
+						yield return new WaitForSeconds (0.05f);
+//						if (i == pScript.getMatrixX (player.transform.position.x)) {
+//							print ("i=" + i);
+//							print ("MatrixX=" + pScript.getMatrixX (player.transform.position.x));
+//							print ("j=" + j);
+//							print ("MatrixY=" + pScript.getMatrixY (player.transform.position.y));
+//							print ("playerY=" + player.transform.position.y);
+//							print ("countDel="+countDel [i]);
+//							print ("--------------------------------------------------------");
+//							yield return new WaitForSeconds (0.15f);
+//							float dropPlayerPosY = (countDel [i]) * -0.4f;
+//							iTween.MoveBy (player, iTween.Hash ("y", dropBlockPosY));
+//
+//						} else {
+//							yield return new WaitForSeconds (0.05f);
+//						}
 						// 移動先の座標にブロックを入れ替える
 						bcScript.setBlock (i, destinationY, dropBlock);
 					}
@@ -151,8 +157,12 @@ public class GameManagerController : MonoBehaviour {
 					countDel [i] = countDel [i] + 1;
 				}
 			}
-		}
 
+		}
+		//ここでキャラ落下
+		print ("countDel="+countDel [pScript.getMatrixX (player.transform.position.x)]);
+		float dropPlayerPosY = countDel [pScript.getMatrixX (player.transform.position.x)] * -0.4f;
+		iTween.MoveBy (player, iTween.Hash ("y", dropPlayerPosY));
 		// 落下するブロックの数だけ遅延させる
 		for (int i = 0; i < bcScript.getRow (); i++) {
 			dropBlockNum += countDel [i];

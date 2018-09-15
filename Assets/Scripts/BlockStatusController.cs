@@ -49,7 +49,7 @@ public class BlockStatusController : MonoBehaviour {
 				if (ballName.StartsWith ("Block")) {
 					float distance = Vector2.Distance (pScript.getPosition (), hitObj.transform.position);
 					if (distance < 0.8f) {
-						print ("Block");
+//						print ("Block");
 						firstBlock = hitObj;
 						lastBlock = hitObj;
 						prominentColor (hitObj);

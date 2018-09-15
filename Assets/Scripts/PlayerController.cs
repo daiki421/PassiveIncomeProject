@@ -52,22 +52,44 @@ public class PlayerController : MonoBehaviour {
 		this.animator.SetBool(key_isRun, true);
 	}
 
+	public void jumpMotion() {
+		this.animator.SetBool(key_isIdle, false);
+		this.animator.SetBool(key_isWalk, false);
+		this.animator.SetBool(key_isRun, false);
+		this.animator.SetBool(key_isAttack, false);
+		this.animator.SetBool(key_isJump, true);
+	}
+
 	// プレイヤーの位置取得
 	public Vector2 getPosition() {
 		return player.transform.position;
 	}
 		
 	// プレイヤーを動かす
-//	public void movePlayer(float moveX, float moveY) {
-//		float positionX = moveX * 0.4f - 1.2f;
-//		float positionY = 0.8f - moveY * 0.4f - 0.6f;
-//		iTween.MoveTo(player, iTween.Hash("x", positionX, "y", positionY));
-//	}
+	public void movePlayer(float moveX, float moveY) {
+		float positionX = moveX * 0.4f - 1.2f;
+		float positionY = 0.8f - moveY * 0.4f - 0.6f;
+		iTween.MoveTo(player, iTween.Hash("x", positionX, "y", positionY));
+	}
+
+	// プレイヤーの下のマスにブロックがない場合下まで落下
+	public void dropPlayer() {
+		// プレイヤーのポジション取得
+		// プレイヤーの行列取得
+		// プレイヤーがいる１つ下のマスにブロックが存在してるか判定
+		// ブロックがなければ落下する
+
+	}
 		
 	// プレイヤーのXポジションからMatrixX取得
 	public int getMatrixX(float x) {
-		float row = (x + 1.2f) / 0.4f;
-		return Mathf.CeilToInt(row);
+		if (x == 0.0f) {
+			return 3;
+		} else {
+			float row = (x + 1.2f) / 0.4f;
+			return Mathf.CeilToInt(row);
+		}
+
 	}
 
 	// ブロックのYポジションからMatrixY取得
