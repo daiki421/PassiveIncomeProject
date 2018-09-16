@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		player = GameObject.Find ("Player");
-		player.transform.position = new Vector2 (0, 0.6f);
+		player.transform.position = new Vector2 (0, 0.2f);
 		gmScript = GameObject.Find("GameManager").GetComponent<GameManagerController> ();
 		this.animator = GetComponent<Animator>();
 	}

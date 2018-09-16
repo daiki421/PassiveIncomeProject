@@ -32,7 +32,7 @@ public class CreateStageController : MonoBehaviour {
 
 	// 地面を最下層ブロックの下につける(最下層ブロック-0.15f)
 	public void createPositionY() {
-		floors.transform.position = new Vector2(0, 0.4f - line * 0.4f - 0.15f);
+		floors.transform.position = new Vector2(0, 0.8f - line * 0.4f - 0.15f);
 	}
 
 
@@ -55,12 +55,12 @@ public class CreateStageController : MonoBehaviour {
 
 	public void setCollider() {
 		for (int i = 0; i < bcScript.getRow(); i++) {
-			for (int j = -1; j < bcScript.getLine(); j++) {
+			for (int j = 0; j < bcScript.getLine(); j++) {
 				// プレファブ取得
 				GameObject colliderPrefab = GameObject.Find("CubeCollider");
 				// オブジェクトのポジション設定
 				colliderPosX = -1.2f + i * 0.4f;
-				colliderPosY = 0.4f - j * 0.4f;
+				colliderPosY = 0.8f - j * 0.4f;
 				Vector3 colliderPosition = new Vector3(colliderPosX, colliderPosY, 0.3f);
 				// プレファブからインスタンス生成
 				// x座標桁落ちのため分岐処理挟む
