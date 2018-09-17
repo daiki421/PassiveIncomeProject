@@ -20,16 +20,18 @@ public class GameManagerController : MonoBehaviour {
 	bool isExistAllow = false;
 	int colliderNum = 0;
 	GameObject comparisonObj;
+	CameraController ccScript;
+	GameObject mainCam;
 
 	void Start ()
 	{
-		GameObject mainCam = Camera.main.gameObject;
+		mainCam = Camera.main.gameObject;
 		player = GameObject.Find ("Player");
-		print (player);
 		bcScript = mainCam.GetComponent<BlockController> ();
 		bsScript = mainCam.GetComponent<BlockStatusController> ();
 		pScript = player.GetComponent<PlayerController> ();
 		comparisonObj = null;
+		ccScript = mainCam.GetComponent<CameraController> ();
 	}
 
 	// 時間差でブロック破壊
@@ -51,7 +53,7 @@ public class GameManagerController : MonoBehaviour {
 				string charName = hitObj.name;
 				if (charName.StartsWith ("CubeCollider")) {
 					float distance = Vector2.Distance (player.transform.position, hitObj.transform.position);
-					if (distance < 6f) {
+					if (distance < 0.8f) {
 						firstCollider = hitObj;
 						lastCollider = hitObj;
 						currentName = hitObj.name;
@@ -76,7 +78,7 @@ public class GameManagerController : MonoBehaviour {
 				string charName = hitObj.name+colliderNum;
 				float distance = Vector2.Distance (hitObj.transform.position, lastCollider.transform.position);
 				if (charName.StartsWith ("CubeCollider")) {
-					if (distance < 8f) {
+					if (distance < 0.8f) {
 						if (comparisonObj == null || comparisonObj != hitObj) {
 							lastCollider = hitObj;
 							readCrumbsList.Add (hitObj);
@@ -142,15 +144,20 @@ public class GameManagerController : MonoBehaviour {
 				} else {
 					countDel [i] = countDel [i] + 1;
 				}
-
 			}
-
 		}
 		//ここでキャラ落下
-		print ("countDel="+countDel [pScript.getMatrixX (player.transform.position.x)]);
-		float dropPlayerPosY = countDel [pScript.getMatrixX (player.transform.position.x)] * -0.4f;
+//		print ("countDel="+countDel [pScript.getMatrixX (player.transform.position.x)]);
+//		print (player.transform.position.y);
+//		print ((0.8f - player.transform.position.y) / 0.4f);
+//		print (bcScript.getLine ());
+		print (countDel [pScript.getMatrixX (player.transform.position.x)]);
+		print(pScript.getMatrixY (player.transform.position.y));
+		// キャラの落下距離算出、+2はブロック生成場所のYがインデックス2以上だから
+		float dropPlayerPosY = (countDel [pScript.getMatrixX (player.transform.position.x)] - pScript.getMatrixY (player.transform.position.y) + 2) * -0.4f;
 		iTween.MoveBy (player, iTween.Hash ("y", dropPlayerPosY));
-
+		ccScript.moveCamera (dropPlayerPosY);
+			
 		// 落下するブロックの数だけ遅延させる
 		for (int i = 0; i < bcScript.getRow (); i++) {
 			dropBlockNum += countDel [i];
