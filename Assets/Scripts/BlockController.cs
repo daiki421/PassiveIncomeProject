@@ -26,7 +26,7 @@ public class BlockController : MonoBehaviour {
 	// ブロックをプレファブから生成して配置する
 	void createObject (int BLOCK_ROW, int BLOCK_LINE) {
 		for (int i = 0; i < BLOCK_ROW; i++) {
-			for (int j = 0; j < BLOCK_LINE; j++) {
+			for (int j = 2; j < BLOCK_LINE; j++) {
 				// オブジェクト名のナンバー
 //				int objectNum = Random.Range(1, 5);
 				int objectNum = Random.Range(1, 2);
@@ -37,7 +37,7 @@ public class BlockController : MonoBehaviour {
 //				print (objectNum);
 				// オブジェクトのポジション設定
 				blockPosX = -1.2f + i * 0.4f;
-				blockPosY = 0.4f - j * 0.4f;
+				blockPosY = 0.8f - j * 0.4f;
 				Vector2 blockPosition = new Vector2(blockPosX, blockPosY);
 				// プレファブからインスタンス生成
 				// x座標桁落ちのため分岐処理挟む
