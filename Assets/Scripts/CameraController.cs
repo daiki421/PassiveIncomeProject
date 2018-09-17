@@ -13,4 +13,9 @@ public class CameraController : MonoBehaviour {
 	void Update () {
 		
 	}
+
+	public void moveCamera(float distance) {
+		iTween.MoveBy(Camera.main.gameObject, iTween.Hash("y", distance));
+//		print("distance="+distance);
+	}
 }

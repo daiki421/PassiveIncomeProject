@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour {
 	private const string key_isWalk = "isWalk";
 	private const string key_isAttack = "isAttack";
 	private const string key_isJump = "isJump";
+	BlockController bcScript;
 
 	// Use this for initialization
 	void Start () {
@@ -33,6 +34,11 @@ public class PlayerController : MonoBehaviour {
 		} else if (Input.GetKey (KeyCode.RightArrow)) {
 			this.animator.SetBool(key_isRun, false);
 			this.animator.SetBool (key_isIdle, true);
+		}
+
+		if (player.transform.position.y <= GameObject.Find("Floors").transform.position.y + 0.35f) {
+			player.transform.position = new Vector2 (player.transform.position.x, GameObject.Find("Floors").transform.position.y + 0.35f);
+			Camera.main.gameObject.transform.position = new Vector3 (Camera.main.gameObject.transform.position.x, GameObject.Find("Floors").transform.position.y + 0.35f, -5);
 		}
 	}
 

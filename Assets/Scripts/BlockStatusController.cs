@@ -82,7 +82,7 @@ public class BlockStatusController : MonoBehaviour {
 						int matrixX = getMatrixX (hitObj.transform.position.x);
 						int matrixY = getMatrixY (hitObj.transform.position.y);
 						bcScript.setIsExistBlock (matrixX, matrixY, false);
-						print ("Drag:("+matrixX+", "+matrixY+")"+bcScript.getIsExistBlock (matrixX, matrixY));
+//						print ("Drag:("+matrixX+", "+matrixY+")"+bcScript.getIsExistBlock (matrixX, matrixY));
 						setMoveObject (matrixX, matrixY, hitObj);
 					}
 				} 
