@@ -5,7 +5,7 @@ using UnityEngine;
 public class BlockController : MonoBehaviour {
 
 	private float scale = 0.38f; // ブロックスケール
-	private int BLOCK_LINE = 15; // ブロックの行
+	private int BLOCK_LINE = 6; // ブロックの行
 	private int BLOCK_ROW = 7; // ブロックの列
 	float blockPosX = 0;
 	float blockPosY = 0;
@@ -32,9 +32,6 @@ public class BlockController : MonoBehaviour {
 				int objectNum = Random.Range(1, 2);
 				// プレファブ取得
 				GameObject cubePrefab = GameObject.Find("Block"+objectNum);
-//				GameObject cubePrefab = GameObject.Find("Block");
-//				cubePrefab.GetComponent<Renderer>().material=_material[objectNum]; 
-//				print (objectNum);
 				// オブジェクトのポジション設定
 				blockPosX = -1.2f + i * 0.4f;
 				blockPosY = 0.8f - j * 0.4f;
@@ -52,29 +49,29 @@ public class BlockController : MonoBehaviour {
 					block.transform.localScale = Vector3.one * scale;
 					setBlock (i, j, block);
 				}
-//				print (i + "," + j);
-//				print (blocks [i, j]);
+			}
+			for (int j = 0; j < BLOCK_LINE; j++) {
 				existObjects[i, j] = true;
-//				print ("(i, j) = "+"("+i+", "+j+")"+":"+existObjects[i, j]);
 			}
 		}
 	}
 
-	void Update () {
-	}
-
+	// ブロックが存在しているかどうかを格納する配列
 	public void setIsExistBlock(int row, int line, bool status) {
 		existObjects [row, line] = status;
 	}
 
+	// ブロックが存在しているかどうかを取得する
 	public bool getIsExistBlock(int row, int line) {
 		return existObjects [row, line];
 	}
 
+	// 生成するブロックの列を取得
 	public int getRow() {
 		return BLOCK_ROW;
 	}
 
+	// 生成するブロックの行を取得
 	public int getLine() {
 		return BLOCK_LINE;
 	}
@@ -85,7 +82,7 @@ public class BlockController : MonoBehaviour {
 		return blocks [row, line];
 	}
 
-	// 存在しているブロックを入れる配列
+	// 存在しているブロックを格納する配列
 	public void setBlock(int row, int line, GameObject obj)
 	{
 		blocks [row, line] = obj;

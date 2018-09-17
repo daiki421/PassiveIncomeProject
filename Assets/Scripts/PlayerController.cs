@@ -94,7 +94,7 @@ public class PlayerController : MonoBehaviour {
 
 	// ブロックのYポジションからMatrixY取得
 	public int getMatrixY(float y) {
-		float line = (0.4f - y) / 0.4f;
+		float line = (0.8f - y) / 0.4f;
 		return Mathf.CeilToInt(line);
 	}
 }

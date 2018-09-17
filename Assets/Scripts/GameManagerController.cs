@@ -24,7 +24,8 @@ public class GameManagerController : MonoBehaviour {
 	void Start ()
 	{
 		GameObject mainCam = Camera.main.gameObject;
-//		player = GameObject.Find ("Player");
+		player = GameObject.Find ("Player");
+		print (player);
 		bcScript = mainCam.GetComponent<BlockController> ();
 		bsScript = mainCam.GetComponent<BlockStatusController> ();
 		pScript = player.GetComponent<PlayerController> ();
@@ -35,10 +36,8 @@ public class GameManagerController : MonoBehaviour {
 	public IEnumerator DeleteBlock (List<GameObject> list)
 	{
 		for (int i = 0; i < list.Count; i++) {
-			if (i <= list.Count-1) {
-				Destroy(list[i]);
-				yield return new WaitForSeconds(0.03f);
-			}
+			Destroy(list[i]);
+			yield return new WaitForSeconds(0.03f);
 		}
 	}
 
@@ -108,14 +107,16 @@ public class GameManagerController : MonoBehaviour {
 	// 時間差でブロックを動かす
 	public IEnumerator MoveBlock(float wait)
 	{
-		int minJ = 100;
 		yield return new WaitForSeconds(wait);
 		countDel = new int[bcScript.getRow()];
-//		print ("CountDel=" + countDel);
+
 		// 列ごとに空白マスの個数を算出、ブロックを下に移動
 		for (int i = 0; i < bcScript.getRow (); i++) {
-			for (int j = bcScript.getLine () - 1; j >= 0; j--) {
-				if (bcScript.getIsExistBlock (i, j) == true) {
+			// 最も下の行(行数-1)からブロックが存在している最高位(インデックス2)までブロックが存在しているかを判定
+			for (int j = bcScript.getLine () - 1; j >= 2; j--) {
+				// 存在している場合：countDelが0の場合落下しない/countDelがそれ以外の場合はcountDelの値分落下
+				// 存在してない場合：存在していないブロックの個数をcountDel[]に格納
+				if (bcScript.getIsExistBlock (i, j)) {
 					if (countDel [i] > 0) {
 						// 移動する前に移動元のsetExistをfalseにする
 						bcScript.setIsExistBlock (i, j, false);
@@ -131,31 +132,17 @@ public class GameManagerController : MonoBehaviour {
 
 						// ブロック移動距離を算出
 						float dropBlockPosY = countDel [i] * -0.4f;
-
 						// 落下
 						iTween.MoveBy (dropBlock, iTween.Hash ("y", dropBlockPosY));
 						yield return new WaitForSeconds (0.05f);
-//						if (i == pScript.getMatrixX (player.transform.position.x)) {
-//							print ("i=" + i);
-//							print ("MatrixX=" + pScript.getMatrixX (player.transform.position.x));
-//							print ("j=" + j);
-//							print ("MatrixY=" + pScript.getMatrixY (player.transform.position.y));
-//							print ("playerY=" + player.transform.position.y);
-//							print ("countDel="+countDel [i]);
-//							print ("--------------------------------------------------------");
-//							yield return new WaitForSeconds (0.15f);
-//							float dropPlayerPosY = (countDel [i]) * -0.4f;
-//							iTween.MoveBy (player, iTween.Hash ("y", dropBlockPosY));
-//
-//						} else {
-//							yield return new WaitForSeconds (0.05f);
-//						}
+
 						// 移動先の座標にブロックを入れ替える
 						bcScript.setBlock (i, destinationY, dropBlock);
 					}
 				} else {
 					countDel [i] = countDel [i] + 1;
 				}
+
 			}
 
 		}
@@ -163,6 +150,7 @@ public class GameManagerController : MonoBehaviour {
 		print ("countDel="+countDel [pScript.getMatrixX (player.transform.position.x)]);
 		float dropPlayerPosY = countDel [pScript.getMatrixX (player.transform.position.x)] * -0.4f;
 		iTween.MoveBy (player, iTween.Hash ("y", dropPlayerPosY));
+
 		// 落下するブロックの数だけ遅延させる
 		for (int i = 0; i < bcScript.getRow (); i++) {
 			dropBlockNum += countDel [i];
@@ -200,7 +188,9 @@ public class GameManagerController : MonoBehaviour {
 	public IEnumerator movePlayer() {
 		for (int i = 0; i < readCrumbsList.Count; i++) {
 			float positionX = moveListX[i] * 0.4f - 1.2f;
-			float positionY = 0.8f - moveListY[i] * 0.4f - 0.6f;
+			float positionY = 1.2f - moveListY[i] * 0.4f - 0.6f;
+			print ("positionX=" + positionX);
+			print ("positionY" + positionY);
 			iTween.MoveTo(player, iTween.Hash("x", positionX, "y", positionY));
 			yield return new WaitForSeconds(0.08f);
 		}

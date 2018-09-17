@@ -13,7 +13,7 @@ public class BlockStatusController : MonoBehaviour {
 	GameObject mainCam;
 	BlockController bcScript;
 	// 落下予定のオブジェクトを入れる配列
-	public GameObject[,] moveObjects = new GameObject[7,10];
+	public GameObject[,] moveObjects;
 	int[] countDel;
 	GameManagerController gmScript;
 	BlockStatusController bsScript;
@@ -29,6 +29,7 @@ public class BlockStatusController : MonoBehaviour {
 	void Start () {
 		mainCam = Camera.main.gameObject;
 		bcScript = mainCam.GetComponent<BlockController> ();
+		moveObjects = new GameObject[bcScript.getRow(),bcScript.getLine()];
 		countDel = new int[bcScript.getRow()];
 		gmScript = GameObject.Find("GameManager").GetComponent<GameManagerController> ();
 		pScript = GameObject.Find ("Player").GetComponent<PlayerController> ();
@@ -49,16 +50,15 @@ public class BlockStatusController : MonoBehaviour {
 				if (ballName.StartsWith ("Block")) {
 					float distance = Vector2.Distance (pScript.getPosition (), hitObj.transform.position);
 					if (distance < 0.8f) {
-//						print ("Block");
 						firstBlock = hitObj;
 						lastBlock = hitObj;
 						prominentColor (hitObj);
 						currentName = hitObj.name;
-//						removableBallList = new List<GameObject> ();
 						PushToList (hitObj);
 						int matrixX = getMatrixX (hitObj.transform.position.x);
 						int matrixY = getMatrixY (hitObj.transform.position.y);
 						bcScript.setIsExistBlock (matrixX, matrixY, false);
+						print ("Drag:("+matrixX+", "+matrixY+")"+bcScript.getIsExistBlock (matrixX, matrixY));
 						setMoveObject (matrixX, matrixY, hitObj);
 					}
 				} 
@@ -82,6 +82,7 @@ public class BlockStatusController : MonoBehaviour {
 						int matrixX = getMatrixX (hitObj.transform.position.x);
 						int matrixY = getMatrixY (hitObj.transform.position.y);
 						bcScript.setIsExistBlock (matrixX, matrixY, false);
+						print ("Drag:("+matrixX+", "+matrixY+")"+bcScript.getIsExistBlock (matrixX, matrixY));
 						setMoveObject (matrixX, matrixY, hitObj);
 					}
 				} 
@@ -155,7 +156,7 @@ public class BlockStatusController : MonoBehaviour {
 
 	// ブロックのYMatrix取得
 	public int getMatrixY(float y) {
-		float line = (0.4f - y) / 0.4f;
+		float line = (0.8f - y) / 0.4f;
 		return Mathf.CeilToInt(line);
 	}
 		
