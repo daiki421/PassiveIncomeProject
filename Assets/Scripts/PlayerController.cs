@@ -16,6 +16,8 @@ public class PlayerController : MonoBehaviour {
 	private const string key_isAttack = "isAttack";
 	private const string key_isJump = "isJump";
 	BlockController bcScript;
+	float afterMovePosY = 0;
+	float beforeMovePosY = 0;
 
 	// Use this for initialization
 	void Start () {
@@ -23,6 +25,7 @@ public class PlayerController : MonoBehaviour {
 		player.transform.position = new Vector2 (0, 0.2f);
 		gmScript = GameObject.Find("GameManager").GetComponent<GameManagerController> ();
 		this.animator = GetComponent<Animator>();
+		beforeMovePosY = player.transform.position.y;
 	}
 
 	// Update is called once per frame
@@ -77,15 +80,6 @@ public class PlayerController : MonoBehaviour {
 		float positionY = 0.8f - moveY * 0.4f - 0.6f;
 		iTween.MoveTo(player, iTween.Hash("x", positionX, "y", positionY));
 	}
-
-	// プレイヤーの下のマスにブロックがない場合下まで落下
-	public void dropPlayer() {
-		// プレイヤーのポジション取得
-		// プレイヤーの行列取得
-		// プレイヤーがいる１つ下のマスにブロックが存在してるか判定
-		// ブロックがなければ落下する
-
-	}
 		
 	// プレイヤーのXポジションからMatrixX取得
 	public int getMatrixX(float x) {
@@ -95,7 +89,6 @@ public class PlayerController : MonoBehaviour {
 			float row = (x + 1.2f) / 0.4f;
 			return Mathf.CeilToInt(row);
 		}
-
 	}
 
 	// ブロックのYポジションからMatrixY取得

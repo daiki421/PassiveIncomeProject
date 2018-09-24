@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class GameManagerController : MonoBehaviour {
 
-//	public GameObject obj;
 	BlockStatusController bsScript;
 	BlockController bcScript;
 	int[] countDel;
@@ -28,7 +27,6 @@ public class GameManagerController : MonoBehaviour {
 		mainCam = Camera.main.gameObject;
 		player = GameObject.Find ("Player");
 		bcScript = mainCam.GetComponent<BlockController> ();
-		bsScript = mainCam.GetComponent<BlockStatusController> ();
 		pScript = player.GetComponent<PlayerController> ();
 		comparisonObj = null;
 		ccScript = mainCam.GetComponent<CameraController> ();
@@ -53,7 +51,8 @@ public class GameManagerController : MonoBehaviour {
 				string charName = hitObj.name;
 				if (charName.StartsWith ("CubeCollider")) {
 					float distance = Vector2.Distance (player.transform.position, hitObj.transform.position);
-					if (distance < 0.8f) {
+//					print ("Distance="+distance);
+					if (distance < 0.5f) {
 						firstCollider = hitObj;
 						lastCollider = hitObj;
 						currentName = hitObj.name;
@@ -62,7 +61,6 @@ public class GameManagerController : MonoBehaviour {
 						moveListY.Add(pScript.getMatrixY (hitObj.transform.position.y));
 						lineDrawing (player, lastCollider);
 					}
-					print("CubeDown");
 				}
 			}
 		}
@@ -76,16 +74,19 @@ public class GameManagerController : MonoBehaviour {
 			if (hit.collider != null) {
 				GameObject hitObj = hit.collider.gameObject;
 				string charName = hitObj.name+colliderNum;
-				float distance = Vector2.Distance (hitObj.transform.position, lastCollider.transform.position);
-				if (charName.StartsWith ("CubeCollider")) {
-					if (distance < 0.8f) {
-						if (comparisonObj == null || comparisonObj != hitObj) {
-							lastCollider = hitObj;
-							readCrumbsList.Add (hitObj);
-							moveListX.Add (pScript.getMatrixX (hitObj.transform.position.x));
-							moveListY.Add (pScript.getMatrixY (hitObj.transform.position.y));
-							lineDrawing (readCrumbsList[readCrumbsList.Count - 2], lastCollider);
-							comparisonObj = hitObj;
+				print ("readCrumbsList.Count" + readCrumbsList.Count);
+				if (readCrumbsList.Count != 0) {
+					float distance = Vector2.Distance (hitObj.transform.position, readCrumbsList[readCrumbsList.Count-1].transform.position);
+					if (charName.StartsWith ("CubeCollider")) {
+						if (distance < 0.5f) {
+							if (comparisonObj == null || comparisonObj != hitObj) {
+								lastCollider = hitObj;
+								readCrumbsList.Add (hitObj);
+								moveListX.Add (pScript.getMatrixX (hitObj.transform.position.x));
+								moveListY.Add (pScript.getMatrixY (hitObj.transform.position.y));
+								lineDrawing (readCrumbsList [readCrumbsList.Count - 2], lastCollider);
+								comparisonObj = hitObj;
+							}
 						}
 					}
 				}
@@ -146,18 +147,10 @@ public class GameManagerController : MonoBehaviour {
 				}
 			}
 		}
-		//ここでキャラ落下
-//		print ("countDel="+countDel [pScript.getMatrixX (player.transform.position.x)]);
-//		print (player.transform.position.y);
-//		print ((0.8f - player.transform.position.y) / 0.4f);
-//		print (bcScript.getLine ());
-		print (countDel [pScript.getMatrixX (player.transform.position.x)]);
-		print(pScript.getMatrixY (player.transform.position.y));
 		// キャラの落下距離算出、+2はブロック生成場所のYがインデックス2以上だから
 		float dropPlayerPosY = (countDel [pScript.getMatrixX (player.transform.position.x)] - pScript.getMatrixY (player.transform.position.y) + 2) * -0.4f;
 		iTween.MoveBy (player, iTween.Hash ("y", dropPlayerPosY));
-		ccScript.moveCamera (dropPlayerPosY);
-			
+//		print ("dropPlayerPosY=" + dropPlayerPosY);
 		// 落下するブロックの数だけ遅延させる
 		for (int i = 0; i < bcScript.getRow (); i++) {
 			dropBlockNum += countDel [i];
@@ -193,11 +186,12 @@ public class GameManagerController : MonoBehaviour {
 	}
 		
 	public IEnumerator movePlayer() {
-		for (int i = 0; i < readCrumbsList.Count; i++) {
+		for (int i = 1; i < readCrumbsList.Count; i++) {
 			float positionX = moveListX[i] * 0.4f - 1.2f;
 			float positionY = 1.2f - moveListY[i] * 0.4f - 0.6f;
-			print ("positionX=" + positionX);
-			print ("positionY" + positionY);
+//			print ("readCrumbsList.Count="+readCrumbsList.Count);
+//			print ("positionX=" + positionX + ", positionY=" + positionY);
+			print ("moveListX=" + moveListX[i] + ", moveListY=" + moveListY[i]);
 			iTween.MoveTo(player, iTween.Hash("x", positionX, "y", positionY));
 			yield return new WaitForSeconds(0.08f);
 		}

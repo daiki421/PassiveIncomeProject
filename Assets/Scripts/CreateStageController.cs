@@ -46,7 +46,7 @@ public class CreateStageController : MonoBehaviour {
 				} else {
 					wallPosX = -1.55f;
 				}
-				wallPosY = 2.85f - j * 0.25f;
+				wallPosY = 2.65f - j * 0.25f;
 				Vector2 wallPosition = new Vector2(wallPosX, wallPosY);
 				GameObject wall = Instantiate(wallPrefab, wallPosition, Quaternion.AngleAxis(Random.Range(0, 0), Vector3.up)) as GameObject;
 			}

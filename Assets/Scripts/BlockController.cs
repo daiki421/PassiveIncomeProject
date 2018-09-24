@@ -5,7 +5,7 @@ using UnityEngine;
 public class BlockController : MonoBehaviour {
 
 	private float scale = 0.38f; // ブロックスケール
-	private int BLOCK_LINE = 6; // ブロックの行
+	private int BLOCK_LINE = 14; // ブロックの行
 	private int BLOCK_ROW = 7; // ブロックの列
 	float blockPosX = 0;
 	float blockPosY = 0;
@@ -88,5 +88,15 @@ public class BlockController : MonoBehaviour {
 		blocks [row, line] = obj;
 	}
 
+	// ブロックのXMatrix取得
+	public int getMatrixX(float x) {
+		float row = (x + 1.2f) / 0.4f;
+		return Mathf.CeilToInt(row);
+	}
 
+	// ブロックのYMatrix取得
+	public int getMatrixY(float y) {
+		float line = (0.8f - y) / 0.4f;
+		return Mathf.CeilToInt(line);
+	}
 }

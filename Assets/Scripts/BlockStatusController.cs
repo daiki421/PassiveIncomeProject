@@ -58,7 +58,7 @@ public class BlockStatusController : MonoBehaviour {
 						int matrixX = getMatrixX (hitObj.transform.position.x);
 						int matrixY = getMatrixY (hitObj.transform.position.y);
 						bcScript.setIsExistBlock (matrixX, matrixY, false);
-						print ("Drag:("+matrixX+", "+matrixY+")"+bcScript.getIsExistBlock (matrixX, matrixY));
+//						print ("Drag:("+matrixX+", "+matrixY+")"+bcScript.getIsExistBlock (matrixX, matrixY));
 						setMoveObject (matrixX, matrixY, hitObj);
 					}
 				} 
@@ -149,13 +149,13 @@ public class BlockStatusController : MonoBehaviour {
 	}
 
 	// ブロックのXMatrix取得
-	public int getMatrixX(float x) {
+	private int getMatrixX(float x) {
 		float row = (x + 1.2f) / 0.4f;
 		return Mathf.CeilToInt(row);
 	}
 
 	// ブロックのYMatrix取得
-	public int getMatrixY(float y) {
+	private int getMatrixY(float y) {
 		float line = (0.8f - y) / 0.4f;
 		return Mathf.CeilToInt(line);
 	}
