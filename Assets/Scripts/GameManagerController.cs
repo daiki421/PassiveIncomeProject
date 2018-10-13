@@ -44,6 +44,15 @@ public class GameManagerController : MonoBehaviour {
 		ccScript = mainCam.GetComponent<CameraController> ();
 	}
 
+	void Update () {
+		if (isPushReloadButton) {
+			pastTime = DateTime.Now - reloadTime;
+			if(pastTime > allowTime){
+				isPushReloadButton = false;
+			}
+		}
+	}
+
 	// 時間差でブロック破壊
 	public IEnumerator DeleteBlock (List<GameObject> list)
 	{
@@ -55,6 +64,10 @@ public class GameManagerController : MonoBehaviour {
 
 	// タップされた時にコールされる
 	void OnMouseDown() {
+		if (isPushReloadButton) {
+			return;
+		}
+		isPushReloadButton = true;
 		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
 		RaycastHit hit = new RaycastHit ();
 		if (Physics.Raycast (ray, out hit)) {
@@ -76,6 +89,7 @@ public class GameManagerController : MonoBehaviour {
 				}
 			}
 		}
+		reloadTime = DateTime.Now;
 	}
 
 	// ドラッグされている間コールされる
