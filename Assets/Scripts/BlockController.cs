@@ -5,7 +5,7 @@ using UnityEngine;
 public class BlockController : MonoBehaviour {
 
 	private float scale = 0.38f; // ブロックスケール
-	private int BLOCK_LINE = 14; // ブロックの行
+	private int BLOCK_LINE = 16; // ブロックの行
 	private int BLOCK_ROW = 7; // ブロックの列
 	float blockPosX = 0;
 	float blockPosY = 0;
@@ -15,12 +15,15 @@ public class BlockController : MonoBehaviour {
 	public GameObject[,] blocks;
 	public Material[] _material;
 	private int materialNum;
+	private Dictionary<float, int> dicX = new Dictionary<float, int> ();
 
 	void Start () {
-		existObjects = new bool[BLOCK_ROW,BLOCK_LINE];
+		existObjects = new bool[BLOCK_ROW,20];
 		blocks = new GameObject[BLOCK_ROW, BLOCK_LINE];
 		createObject(BLOCK_ROW, BLOCK_LINE);
+		setExistsInArray (BLOCK_ROW, BLOCK_LINE);
 		materialNum = 0;
+		dicX = new Dictionary<float, int> () {{-1.2f, 0}, {-0.8f, 1}, {-0.4f, 2}, {0, 3}, {0.4f, 4}, {0.8f, 5}, {1.2f, 6}};
 	}
 
 	// ブロックをプレファブから生成して配置する
@@ -50,8 +53,18 @@ public class BlockController : MonoBehaviour {
 					setBlock (i, j, block);
 				}
 			}
-			for (int j = 0; j < BLOCK_LINE; j++) {
-				existObjects[i, j] = true;
+		}
+	}
+
+	// ブロックの存在判定を配列に格納
+	void setExistsInArray (int BLOCK_ROW, int BLOCK_LINE) {
+		for (int i = 0; i < BLOCK_ROW; i++) {
+			for (int j = 0; j < 20; j++) {
+				if (j == 0 || j == 1) {
+					setIsExistBlock (i, j, false);
+				} else {
+					setIsExistBlock (i, j, true);
+				}
 			}
 		}
 	}
@@ -76,7 +89,7 @@ public class BlockController : MonoBehaviour {
 		return BLOCK_LINE;
 	}
 		
-	// 指定の座標のブロックを取得
+	// 指定した座標のブロックを取得
 	public GameObject getBlock(int row, int line)
 	{
 		return blocks [row, line];

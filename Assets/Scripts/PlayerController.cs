@@ -77,9 +77,26 @@ public class PlayerController : MonoBehaviour {
 	// プレイヤーを動かす
 	public void movePlayer(float moveX, float moveY) {
 		float positionX = moveX * 0.4f - 1.2f;
-		float positionY = 0.8f - moveY * 0.4f - 0.6f;
+		float positionY = 0.8f - moveY * 0.4f;
 		iTween.MoveTo(player, iTween.Hash("x", positionX, "y", positionY));
 	}
+
+	// プレイヤー落下
+	public void dropPlayer(float dropDiss) {
+		iTween.MoveTo(player, iTween.Hash("y", dropDiss));
+	}
+//	public IEnumerator movePlayer() {
+//		for (int i = 1; i < gmScript.getReadCrumbsList().Count; i++) {
+//			float positionX = gmScript.getMoveListX()[i] * 0.4f - 1.2f;
+//			float positionY = 1.2f - gmScript.getMoveListY()[i] * 0.4f - 0.6f;
+//			//			print ("readCrumbsList.Count="+readCrumbsList.Count);
+//			//			print ("positionX=" + positionX + ", positionY=" + positionY);
+//			print ("moveListX=" + gmScript.getMoveListX()[i] + ", moveListY=" + gmScript.getMoveListY()[i]);
+//			iTween.MoveTo(player, iTween.Hash("x", positionX, "y", positionY));
+//			yield return new WaitForSeconds(0.08f);
+//		}
+//		idleMotion ();
+//	}
 		
 	// プレイヤーのXポジションからMatrixX取得
 	public int getMatrixX(float x) {

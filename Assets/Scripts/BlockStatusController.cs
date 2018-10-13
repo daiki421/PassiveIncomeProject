@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class BlockStatusController : MonoBehaviour {
 
@@ -24,6 +25,17 @@ public class BlockStatusController : MonoBehaviour {
 	Material originalMaterial3;
 	Material originalMaterial4;
 	private Renderer renderer;
+	private Dictionary<float, int> test = new Dictionary<float, int> ();
+	// ボタン押下許可フラグ
+	private bool isPushReloadButton = false;
+
+	// ボタンが押されてから次にまた押せるまでの時間(秒)
+	private TimeSpan allowTime = new TimeSpan(0, 0, 1);
+
+	// 前回ボタンが押された時点と現在時間との差分を格納
+	private TimeSpan pastTime;
+
+	private DateTime reloadTime;
 
 	// Use this for initialization
 	void Start () {
@@ -37,10 +49,24 @@ public class BlockStatusController : MonoBehaviour {
 		renderer = GetComponent<Renderer>();
 		originalMaterial1 = new Material(renderer.material);
 		GameObject.Find("RayCutMain").GetComponent<BoxCollider> ().enabled = false;
+		test = new Dictionary<float, int> () {{-5.2f, 15}};
+	}
+
+	void Update () {
+		if (isPushReloadButton) {
+			pastTime = DateTime.Now - reloadTime;
+			if(pastTime > allowTime){
+				isPushReloadButton = false;
+			}
+		}
 	}
 
 	// マウスボタンが押された時にコールされる
 	void OnMouseDown() {
+		if (isPushReloadButton) {
+			return;
+		}
+		isPushReloadButton = true;
 		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
 		RaycastHit hit = new RaycastHit ();
 		if (Physics.Raycast (ray, out hit)) {
@@ -59,11 +85,14 @@ public class BlockStatusController : MonoBehaviour {
 						int matrixY = getMatrixY (hitObj.transform.position.y);
 						bcScript.setIsExistBlock (matrixX, matrixY, false);
 //						print ("Drag:("+matrixX+", "+matrixY+")"+bcScript.getIsExistBlock (matrixX, matrixY));
-						setMoveObject (matrixX, matrixY, hitObj);
+//						setMoveObject (matrixX, matrixY, hitObj);
+						bcScript.setIsExistBlock (matrixX, matrixY, false);
+						print ("existBlock("+matrixX+", "+matrixY+")=" + bcScript.getIsExistBlock (matrixX, matrixY));
 					}
 				} 
 			}
 		}
+		reloadTime = DateTime.Now;
 	}
 
 	// ドラッグしている間コールされ続ける
@@ -81,9 +110,17 @@ public class BlockStatusController : MonoBehaviour {
 						gmScript.lineDrawing (removableBallList[removableBallList.Count - 2], lastBlock);
 						int matrixX = getMatrixX (hitObj.transform.position.x);
 						int matrixY = getMatrixY (hitObj.transform.position.y);
+						print ("(x, y)=" + "(" + hitObj.transform.position.x + ", " + hitObj.transform.position.y + ")");
+//						if (hitObj.transform.position.y == -5.2) {
+//							print ("入ってる");
+//							matrixY = test[-5.2f];
+//						}
+						print ("(matrixX, matrixY)=" + "(" + matrixX + ", " + matrixY + ")");
 						bcScript.setIsExistBlock (matrixX, matrixY, false);
 //						print ("Drag:("+matrixX+", "+matrixY+")"+bcScript.getIsExistBlock (matrixX, matrixY));
-						setMoveObject (matrixX, matrixY, hitObj);
+//						setMoveObject (matrixX, matrixY, hitObj);
+//						bcScript.setIsExistBlock (matrixX, matrixY, false);
+//						print ("existBlock("+matrixX+", "+matrixY+")=" + bcScript.getIsExistBlock (matrixX, matrixY));
 					}
 				} 
 			}
@@ -156,8 +193,11 @@ public class BlockStatusController : MonoBehaviour {
 
 	// ブロックのYMatrix取得
 	private int getMatrixY(float y) {
+		print ("y = "+y);
 		float line = (0.8f - y) / 0.4f;
-		return Mathf.CeilToInt(line);
+		print ("line = "+line);
+		print ("CeilToInt = "+Mathf.CeilToInt (line));
+		return Mathf.RoundToInt (line);
 	}
 		
 	// ブロックを動かす処理
