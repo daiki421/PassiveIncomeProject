@@ -5,7 +5,7 @@ using UnityEngine;
 public class BlockController : MonoBehaviour {
 
 	private float scale = 0.38f; // ブロックスケール
-	private int BLOCK_LINE = 16; // ブロックの行
+	private int BLOCK_LINE = 20; // ブロックの行
 	private int BLOCK_ROW = 7; // ブロックの列
 	float blockPosX = 0;
 	float blockPosY = 0;
@@ -59,7 +59,7 @@ public class BlockController : MonoBehaviour {
 	// ブロックの存在判定を配列に格納
 	void setExistsInArray (int BLOCK_ROW, int BLOCK_LINE) {
 		for (int i = 0; i < BLOCK_ROW; i++) {
-			for (int j = 0; j < 20; j++) {
+			for (int j = 0; j < BLOCK_LINE; j++) {
 				if (j == 0 || j == 1) {
 					setIsExistBlock (i, j, false);
 				} else {

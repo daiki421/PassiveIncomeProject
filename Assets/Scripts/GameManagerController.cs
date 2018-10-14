@@ -126,7 +126,7 @@ public class GameManagerController : MonoBehaviour {
 		// Rayを遮断
 		GameObject.Find("RayCutMain").GetComponent<BoxCollider> ().enabled = true;
 
-//		StartCoroutine ("movePlayer");
+		StartCoroutine ("movePlayer");
 		GameObject[] lines = GameObject.FindGameObjectsWithTag("Line");
 		foreach (GameObject line in lines) {
 			Destroy(line);
@@ -171,7 +171,7 @@ public class GameManagerController : MonoBehaviour {
 						print ("(" + i + ", " + j + ")=" + bcScript.getIsExistBlock (i, j));
 						print ("(" + i + ", " + destinationY + ")=" + bcScript.getIsExistBlock (i, destinationY));
 						// 移動する前に移動元のsetExistをfalseにする
-						bcScript.setIsExistBlock (i, j, false);
+//						bcScript.setIsExistBlock (i, j, false);
 						// 移動先のsetExistをtrueにする
 
 						bcScript.setIsExistBlock (i, destinationY, true);
