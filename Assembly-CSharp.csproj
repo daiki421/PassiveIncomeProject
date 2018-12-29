@@ -61,6 +61,10 @@
      <Compile Include="Assets\Scripts\EnemmyController.cs" />
      <Compile Include="Assets\Scripts\GameManagerController.cs" />
      <Compile Include="Assets\Scripts\PlayerController.cs" />
+     <Compile Include="Assets\Scripts\Test\TestBlockController.cs" />
+     <Compile Include="Assets\Scripts\Test\TestBlockStatusController.cs" />
+     <Compile Include="Assets\Scripts\Test\TestGameManagerController.cs" />
+     <Compile Include="Assets\Scripts\Test\TestPlayerController.cs" />
      <Compile Include="Assets\Scripts\UIController.cs" />
      <None Include="Assets\Standard Assets\Effects\GlassRefraction\Shaders\GlassStainedBumpDistort.shader" />
      <None Include="Assets\Standard Assets\Effects\ToonShading\Shaders\ToonBasic.shader" />
