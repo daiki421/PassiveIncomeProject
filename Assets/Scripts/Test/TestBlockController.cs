@@ -1,57 +1,49 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+//using UnityEngine.Mathf;
 
-public class BlockController : MonoBehaviour {
+public class TestBlockController : MonoBehaviour {
 
-	private float scale = 0.38f; // ブロックスケール
-	private int BLOCK_LINE = 20; // ブロックの行
+	private int scale = 95; // ブロックスケール
+	private int BLOCK_LINE = 11; // ブロックの行
 	private int BLOCK_ROW = 7; // ブロックの列
-	float blockPosX = 0;
-	float blockPosY = 0;
+	int blockPosX = 0;
+	int blockPosY = 0;
 	// ブロックが存在しているかを格納
 	public bool[,] existObjects;
 	// 存在しているブロックのオブジェクトを格納
 	public GameObject[,] blocks;
 	public Material[] _material;
 	private int materialNum;
-	private Dictionary<float, int> dicX = new Dictionary<float, int> ();
 
 	void Start () {
-		existObjects = new bool[BLOCK_ROW,20];
-		blocks = new GameObject[BLOCK_ROW, BLOCK_LINE];
+		existObjects = new bool[BLOCK_ROW, BLOCK_LINE+2];
+		blocks = new GameObject[BLOCK_ROW, BLOCK_LINE+2];
 		createObject(BLOCK_ROW, BLOCK_LINE);
-		setExistsInArray (BLOCK_ROW, BLOCK_LINE);
+		setExistsInArray (BLOCK_ROW, BLOCK_LINE+2);
 		materialNum = 0;
-		dicX = new Dictionary<float, int> () {{-1.2f, 0}, {-0.8f, 1}, {-0.4f, 2}, {0, 3}, {0.4f, 4}, {0.8f, 5}, {1.2f, 6}};
 	}
 
 	// ブロックをプレファブから生成して配置する
 	void createObject (int BLOCK_ROW, int BLOCK_LINE) {
 		for (int i = 0; i < BLOCK_ROW; i++) {
-			for (int j = 2; j < BLOCK_LINE; j++) {
+			for (int j = 2; j < BLOCK_LINE + 2; j++) {
+//				print ("(i, j)=" + "(" + i + ", " + j + ")");
 				// オブジェクト名のナンバー
-//				int objectNum = Random.Range(1, 5);
+				//				int objectNum = Random.Range(1, 5);本番
 				int objectNum = Random.Range(1, 2);
 				// プレファブ取得
 				GameObject cubePrefab = GameObject.Find("Block"+objectNum);
 				// オブジェクトのポジション設定
-				blockPosX = -1.2f + i * 0.4f;
-				blockPosY = 0.8f - j * 0.4f;
+				blockPosX = 100 * i;
+				blockPosY = 900 - (j - 2) * 100;
 				Vector2 blockPosition = new Vector2(blockPosX, blockPosY);
 				// プレファブからインスタンス生成
-				// x座標桁落ちのため分岐処理挟む
-				if (i == 3) {
-					GameObject block = Instantiate(cubePrefab, new Vector2(0, blockPosY), Quaternion.AngleAxis(Random.Range(-1, 1), Vector3.up)) as GameObject;
-					// オブジェクトのスケール設定
-					block.transform.localScale = Vector3.one * scale;
-					setBlock (i, j, block);
-				} else {
-					GameObject block = Instantiate(cubePrefab, blockPosition, Quaternion.AngleAxis(Random.Range(-1, 1), Vector3.up)) as GameObject;
-					// オブジェクトのスケール設定
-					block.transform.localScale = Vector3.one * scale;
-					setBlock (i, j, block);
-				}
+				GameObject block = Instantiate(cubePrefab, blockPosition, Quaternion.AngleAxis(Random.Range(-1, 1), Vector3.up)) as GameObject;
+				// オブジェクトのスケール設定
+				block.transform.localScale = Vector3.one * scale;
+				setBlock (i, j, block);
 			}
 		}
 	}
@@ -59,12 +51,8 @@ public class BlockController : MonoBehaviour {
 	// ブロックの存在判定を配列に格納
 	void setExistsInArray (int BLOCK_ROW, int BLOCK_LINE) {
 		for (int i = 0; i < BLOCK_ROW; i++) {
-			for (int j = 0; j < BLOCK_LINE; j++) {
-				if (j == 0 || j == 1) {
-					setIsExistBlock (i, j, false);
-				} else {
-					setIsExistBlock (i, j, true);
-				}
+			for (int j = 2; j < BLOCK_LINE; j++) {
+				setIsExistBlock (i, j, true);
 			}
 		}
 	}
@@ -88,7 +76,7 @@ public class BlockController : MonoBehaviour {
 	public int getLine() {
 		return BLOCK_LINE;
 	}
-		
+
 	// 指定した座標のブロックを取得
 	public GameObject getBlock(int row, int line)
 	{
@@ -102,14 +90,13 @@ public class BlockController : MonoBehaviour {
 	}
 
 	// ブロックのXMatrix取得
-	public int getMatrixX(float x) {
-		float row = (x + 1.2f) / 0.4f;
-		return Mathf.CeilToInt(row);
+	public int getMatrixX(int x) {
+		return x / 100;
 	}
 
 	// ブロックのYMatrix取得
-	public int getMatrixY(float y) {
-		float line = (0.8f - y) / 0.4f;
-		return Mathf.CeilToInt(line);
+	public int getMatrixY(int y) {
+		// blockPosY = 900 - (j - 2) * 100の逆算
+		return (900 - y) / 100 + 2;
 	}
 }

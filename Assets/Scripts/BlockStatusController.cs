@@ -111,10 +111,6 @@ public class BlockStatusController : MonoBehaviour {
 						int matrixX = getMatrixX (hitObj.transform.position.x);
 						int matrixY = getMatrixY (hitObj.transform.position.y);
 						print ("(x, y)=" + "(" + hitObj.transform.position.x + ", " + hitObj.transform.position.y + ")");
-//						if (hitObj.transform.position.y == -5.2) {
-//							print ("入ってる");
-//							matrixY = test[-5.2f];
-//						}
 						print ("(matrixX, matrixY)=" + "(" + matrixX + ", " + matrixY + ")");
 						bcScript.setIsExistBlock (matrixX, matrixY, false);
 //						print ("Drag:("+matrixX+", "+matrixY+")"+bcScript.getIsExistBlock (matrixX, matrixY));
@@ -164,6 +160,7 @@ public class BlockStatusController : MonoBehaviour {
 		GameObject.Find("RayCutMain").GetComponent<BoxCollider> ().enabled = true;
 
 		// ブロック削除
+
 		gmScript.StartCoroutine ("DeleteBlock", removableBallList);
 
 		// ブロック落下
