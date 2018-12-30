@@ -10,15 +10,13 @@ public class TestCameraController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		mainCam = Camera.main.gameObject;
-		print ("mainCam.transform.position.y="+mainCam.transform.position.y);
-		print ("Floors.transform.position.y="+GameObject.Find("Floors").transform.position.y);
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		
 		if (mainCam.transform.position.y < GameObject.Find ("Floors").transform.position.y + 667) {
-			mainCam.transform.position = new Vector3 (mainCam.transform.position.x, GameObject.Find ("Floors").transform.position.y + 667, -500);
+			mainCam.transform.position = new Vector3 (mainCam.transform.position.x, 300, -500);
 		} else {
 			
 		}

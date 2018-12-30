@@ -53,11 +53,11 @@ public class TestGameManagerController : MonoBehaviour {
 				isPushReloadButton = false;
 			}
 		}
-		if (mainCam.transform.position.y < GameObject.Find ("Floors").transform.position.y + 667) {
-			mainCam.transform.position = new Vector3 (mainCam.transform.position.x, GameObject.Find ("Floors").transform.position.y + 668, -500);
-		} else {
-
-		}
+//		if (mainCam.transform.position.y < GameObject.Find ("Floors").transform.position.y + 667) {
+//			mainCam.transform.position = new Vector3 (mainCam.transform.position.x, GameObject.Find ("Floors").transform.position.y + 350, -500);
+//		} else {
+//
+//		}
 	}
 
 	// 時間差でブロック破壊
