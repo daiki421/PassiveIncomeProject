@@ -22,6 +22,8 @@ public class TestGameManagerController : MonoBehaviour {
 	GameObject comparisonObj;
 	CameraController ccScript;
 	GameObject mainCam;
+	private int PLAYER_POSITION_Y_MAX = 1150;
+	private int BLOCK_POSITION_Y_MAX = 1100;
 
 	// ボタン押下許可フラグ
 	private bool isPushReloadButton = false;
@@ -125,7 +127,6 @@ public class TestGameManagerController : MonoBehaviour {
 		// Rayを遮断
 		GameObject.Find("RayCutMain").GetComponent<BoxCollider> ().enabled = true;
 
-		StartCoroutine ("movePlayer");
 		GameObject[] lines = GameObject.FindGameObjectsWithTag("Line");
 		foreach (GameObject line in lines) {
 			Destroy(line);
@@ -147,31 +148,20 @@ public class TestGameManagerController : MonoBehaviour {
 			for (int j = bcScript.getLine () + 1; j > 1; j--) {
 				// 存在している場合：countDelが0の場合落下しない/countDelがそれ以外の場合はcountDelの値分落下
 				// 存在してない場合：存在していないブロックの個数をcountDel[]に格納
-//				print("("+i+","+j+")="+bcScript.getIsExistBlock (i, j));
 				if (bcScript.getIsExistBlock (i, j)) {
 					if (countDel [i] > 0) {
 						// ブロック移動先のindexYを取得
 						int destinationY = j + countDel [i];
-
-//						print("destinationY="+destinationY);
-//						print("j="+j+" / countDel["+i+"]="+countDel[i]);
 						// 移動するブロックを取得
 						GameObject dropBlock = bcScript.getBlock (i, j);
 						// ブロック移動先を算出
 						int dropBlockPosY = destinationY * 100;
 						// 落下
-						iTween.MoveTo (dropBlock, iTween.Hash ("x", dropBlock.transform.position.x, "y", 1100 - dropBlockPosY));
+						iTween.MoveTo (dropBlock, iTween.Hash ("x", dropBlock.transform.position.x, "y", BLOCK_POSITION_Y_MAX - dropBlockPosY));
 						yield return new WaitForSeconds (0.05f);
-						if (j == 2 && i == matrixPlayerPosX) {
-							print("i="+i+"=にいる");
-							iTween.MoveTo (player, iTween.Hash ("x", player.transform.position.x, "y", 1150 - dropBlockPosY));
-							yield return new WaitForSeconds (0.05f);
-						} else {
-							print("いない");
-						}
+
 						// 移動元のsetExistをfalseにする
 						bcScript.setIsExistBlock (i, j, false);
-//						print ("------------");
 						// 移動先のsetExistをtrueにする
 						bcScript.setIsExistBlock (i, destinationY, true);
 						// 移動先の座標にブロックを入れ替える
@@ -181,22 +171,19 @@ public class TestGameManagerController : MonoBehaviour {
 					countDel [i] = countDel [i] + 1;
 				}
 
+				// キャラの落下処理
+				if (j == 2 && i == matrixPlayerPosX) {
+					print ("i=" + i + "にいる");
+					iTween.MoveTo (player, iTween.Hash ("x", player.transform.position.x, "y", PLAYER_POSITION_Y_MAX - (j + countDel [i])*100));
+					yield return new WaitForSeconds (0.05f);
+				}
 			}
-
-//			print ("countDel [" + i + "]=" + countDel [i]);
-//			print("----------------------");
 		}
-//		 キャラの落下距離算出、+2はブロック生成場所のYがインデックス2以上だから
-//		 キャラのいるY軸上で破壊されたブロックの個数 - 落下前のキャラのYインデックス + 1
-//		int dropPlayerPosY = (countDel[matrixPlayerPosX] - matrixPlayerPosY) * 100;
-//		print ("dropPlayerPosY="+dropPlayerPosY);
-//		iTween.MoveTo (player, iTween.Hash ("x", playerPosX, "y", 1150 - dropPlayerPosY));
-//		 落下するブロックの数だけ遅延させる
+		// 落下するブロックの数だけ遅延させる
 		for (int i = 0; i < bcScript.getRow (); i++) {
 			dropBlockNum += countDel [i];
 		}
 		yield return new WaitForSeconds(dropBlockNum * 0.05f);
-//		GameObject.Find("RayCutMain").GetComponent<BoxCollider> ().enabled = false;
 	}
 
 	// 消すブロックを繋げる線を表示する
@@ -227,11 +214,10 @@ public class TestGameManagerController : MonoBehaviour {
 
 	public IEnumerator movePlayer() {
 //		pScript.idleMotion ();
+		print(readCrumbsList.Count);
 		for (int i = 1; i < readCrumbsList.Count; i++) {
 			float positionX = moveListX[i] * 0.4f - 1.2f;
 			float positionY = 0.8f - moveListY[i] * 0.4f - 0.6f;
-			//			print ("readCrumbsList.Count="+readCrumbsList.Count);
-			//			print ("positionX=" + positionX + ", positionY=" + positionY);
 			print ("moveListX=" + moveListX[i] + ", moveListY=" + moveListY[i]);
 			iTween.MoveTo(player, iTween.Hash("x", positionX, "y", positionY));
 			yield return new WaitForSeconds(0.08f);

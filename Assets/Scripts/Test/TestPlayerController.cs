@@ -76,16 +76,12 @@ public class TestPlayerController : MonoBehaviour {
 
 
 	// プレイヤーを動かす
-	public void movePlayer(int moveX, int moveY) {
-		float positionX = moveX * 0.4f - 1.2f;
-		float positionY = 0.8f - moveY * 0.4f;
-		iTween.MoveTo(player, iTween.Hash("x", positionX, "y", positionY));
-	}
-
-	// プレイヤー落下
-//	public void dropPlayer(float dropDiss) {
-//		iTween.MoveTo(player, iTween.Hash("x", player.transform.position.x, "y", 1150 - dropBlockPosY));
+//	public void movePlayer(int moveX, int moveY) {
+//		float positionX = moveX * 0.4f - 1.2f;
+//		float positionY = 0.8f - moveY * 0.4f;
+//		iTween.MoveTo(player, iTween.Hash("x", positionX, "y", positionY));
 //	}
+
 //	public IEnumerator movePlayer() {
 //		for (int i = 1; i < gmScript.getReadCrumbsList().Count; i++) {
 //			float positionX = gmScript.getMoveListX()[i] * 0.4f - 1.2f;
