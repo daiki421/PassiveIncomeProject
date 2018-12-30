@@ -77,7 +77,7 @@ public class TestBlockStatusController : MonoBehaviour {
 //					if (distance < 0.5f) {
 						firstBlock = hitObj;
 						lastBlock = hitObj;
-//						prominentColor (hitObj);
+						prominentColor (hitObj);
 						currentName = hitObj.name;
 						// 消すブロックをリストに格納
 						PushToList (hitObj);
@@ -124,7 +124,7 @@ public class TestBlockStatusController : MonoBehaviour {
 	// マウスボタンを離した時にコールされる
 	void OnMouseUp() {
 		
-//		light.SetActive (true);
+		light.SetActive (true);
 		// オブジェクト発光消す
 		GameObject[] blueBlocks = GameObject.FindGameObjectsWithTag("CubeBlue");
 		foreach (GameObject block in blueBlocks) {
@@ -171,5 +171,46 @@ public class TestBlockStatusController : MonoBehaviour {
 	void PushToList (GameObject obj) {
 		removableBallList.Add (obj);
 		//		ChangeColor(obj, 0.5f);
+	}
+
+	// 選んだ色のブロックのみ際立たせる
+	// 消すブロックを光らせる
+	// DirectionLightのBlockをoffにする
+	public void prominentColor(GameObject obj) {
+		if (obj.tag == "CubeBlue") {// Blueをタップした場合
+			light.SetActive(false);
+			GameObject[] blueBlocks = GameObject.FindGameObjectsWithTag(obj.tag);
+			foreach (GameObject block in blueBlocks) {
+				Renderer r = block.GetComponent<Renderer> (); 
+				r.material.EnableKeyword("_EMISSION");
+				r.material.SetColor("_EmissionColor", new Color(0,0,1));
+			}
+		} else if (obj.tag == "CubeGreen") {// Greenをタップした場合
+			light.SetActive(false);
+			GameObject[] greenBlocks = GameObject.FindGameObjectsWithTag(obj.tag);
+			foreach (GameObject block in greenBlocks) {
+				Renderer r = block.GetComponent<Renderer> (); 
+				r.material.EnableKeyword("_EMISSION");
+				r.material.SetColor("_EmissionColor", new Color(0,1,0));
+			}
+		} else if (obj.tag == "CubeRed") {// Redをタップした場合
+			light.SetActive(false);
+			GameObject[] redBlocks = GameObject.FindGameObjectsWithTag(obj.tag);
+			foreach (GameObject block in redBlocks) {
+				Renderer r = block.GetComponent<Renderer> (); 
+				r.material.EnableKeyword("_EMISSION");
+				r.material.SetColor("_EmissionColor", new Color(1,0,0));
+			}
+		} else if (obj.tag == "CubeYellow") {// Yellowをタップした場合
+			light.SetActive(false);
+			GameObject[] yellowBlocks = GameObject.FindGameObjectsWithTag(obj.tag);
+			foreach (GameObject block in yellowBlocks) {
+				Renderer r = block.GetComponent<Renderer> (); 
+				r.material.EnableKeyword("_EMISSION");
+				r.material.SetColor("_EmissionColor", new Color(1,1,0));
+			}
+		} else {
+			// 何もしない
+		}
 	}
 }

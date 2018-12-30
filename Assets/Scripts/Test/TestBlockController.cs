@@ -31,7 +31,7 @@ public class TestBlockController : MonoBehaviour {
 			for (int j = 2; j < BLOCK_LINE + 2; j++) {
 //				print ("(i, j)=" + "(" + i + ", " + j + ")");
 				// オブジェクト名のナンバー
-				//				int objectNum = Random.Range(1, 5);本番
+//								int objectNum = Random.Range(1, 5);//本番
 				int objectNum = Random.Range(1, 2);
 				// プレファブ取得
 				GameObject cubePrefab = GameObject.Find("Block"+objectNum);

@@ -31,8 +31,8 @@ public class BlockController : MonoBehaviour {
 		for (int i = 0; i < BLOCK_ROW; i++) {
 			for (int j = 2; j < BLOCK_LINE; j++) {
 				// オブジェクト名のナンバー
-//				int objectNum = Random.Range(1, 5);
-				int objectNum = Random.Range(1, 2);
+				int objectNum = Random.Range(1, 5);
+//				int objectNum = Random.Range(1, 2);
 				// プレファブ取得
 				GameObject cubePrefab = GameObject.Find("Block"+objectNum);
 				// オブジェクトのポジション設定

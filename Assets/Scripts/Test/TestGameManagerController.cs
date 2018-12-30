@@ -20,7 +20,7 @@ public class TestGameManagerController : MonoBehaviour {
 	bool isExistAllow = false;
 	int colliderNum = 0;
 	GameObject comparisonObj;
-	CameraController ccScript;
+	TestCameraController ccScript;
 	GameObject mainCam;
 	private int PLAYER_POSITION_Y_MAX = 1150;
 	private int BLOCK_POSITION_Y_MAX = 1100;
@@ -43,7 +43,7 @@ public class TestGameManagerController : MonoBehaviour {
 		bcScript = mainCam.GetComponent<TestBlockController> ();
 		pScript = player.GetComponent<TestPlayerController> ();
 		comparisonObj = null;
-		ccScript = mainCam.GetComponent<CameraController> ();
+		ccScript = mainCam.GetComponent<TestCameraController> ();
 	}
 
 	void Update () {
@@ -52,6 +52,11 @@ public class TestGameManagerController : MonoBehaviour {
 			if(pastTime > allowTime){
 				isPushReloadButton = false;
 			}
+		}
+		if (mainCam.transform.position.y < GameObject.Find ("Floors").transform.position.y + 667) {
+			mainCam.transform.position = new Vector3 (mainCam.transform.position.x, GameObject.Find ("Floors").transform.position.y + 668, -500);
+		} else {
+
 		}
 	}
 
@@ -173,8 +178,8 @@ public class TestGameManagerController : MonoBehaviour {
 
 				// キャラの落下処理
 				if (j == 2 && i == matrixPlayerPosX) {
-					print ("i=" + i + "にいる");
 					iTween.MoveTo (player, iTween.Hash ("x", player.transform.position.x, "y", PLAYER_POSITION_Y_MAX - (j + countDel [i])*100));
+
 					yield return new WaitForSeconds (0.05f);
 				}
 			}
