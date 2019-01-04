@@ -30,6 +30,8 @@ public class TestPlayerController : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+//		print ("MatrixX="+getMatrixX((int)getPosition().x));
+//		print ("MatrixY="+getMatrixY((int)getPosition().y));
 		if (Input.GetKey (KeyCode.DownArrow)) {
 			// WaitからRunに遷移する
 			this.animator.SetBool(key_isIdle, false);

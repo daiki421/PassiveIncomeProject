@@ -21,14 +21,13 @@ public class TestCreateStageController : MonoBehaviour {
 		line = bcScript.getLine ();
 		createPositionY ();
 		createWall ();
-//		setCollider ();
+		setCollider ();
 	}
 
 	// Update is called once per frame
 	void Update () {
 
 	}
-
 
 	// 地面を最下層ブロックの下につける(最下層ブロック-0.15f)
 	public void createPositionY() {
@@ -54,24 +53,17 @@ public class TestCreateStageController : MonoBehaviour {
 
 	public void setCollider() {
 		for (int i = 0; i < bcScript.getRow(); i++) {
-			for (int j = 0; j < bcScript.getLine(); j++) {
+			for (int j = 0; j < bcScript.getLine() + 2; j++) {
 				// プレファブ取得
 				GameObject colliderPrefab = GameObject.Find("CubeCollider");
 				// オブジェクトのポジション設定
-				colliderPosX = -1.2f + i * 0.4f;
-				colliderPosY = 0.8f - j * 0.4f;
+				colliderPosX = i * 100;
+				colliderPosY = 1100 - j * 100;
 				Vector3 colliderPosition = new Vector3(colliderPosX, colliderPosY, 0.3f);
 				// プレファブからインスタンス生成
-				// x座標桁落ちのため分岐処理挟む
-				if (i == 3) {
-					GameObject collider = Instantiate(colliderPrefab, colliderPosition, Quaternion.AngleAxis(Random.Range(0, 0), Vector3.up)) as GameObject;
-					// オブジェクトのスケール設定
-					collider.transform.localScale = Vector3.one * scale;
-				} else {
-					GameObject block = Instantiate(colliderPrefab, colliderPosition, Quaternion.AngleAxis(Random.Range(0, 0), Vector3.up)) as GameObject;
-					// オブジェクトのスケール設定
-					block.transform.localScale = Vector3.one * scale;
-				}
+				GameObject block = Instantiate(colliderPrefab, colliderPosition, Quaternion.AngleAxis(Random.Range(0, 0), Vector3.up)) as GameObject;
+				// オブジェクトのスケール設定
+				block.transform.localScale = Vector3.one * scale;
 			}
 		}
 	}

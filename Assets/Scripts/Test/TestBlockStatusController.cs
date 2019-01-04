@@ -12,58 +12,44 @@ public class TestBlockStatusController : MonoBehaviour {
 	List<GameObject> moveBlockList = new List<GameObject>();
 	List<float> moveBlockPosYList = new List<float>();
 	GameObject mainCam;
-	TestBlockController blockController;
+	TestBlockController bcScript;
 	// 落下予定のオブジェクトを入れる配列
 	public GameObject[,] moveObjects;
 	int[] countDel;
 	TestGameManagerController gameManagerController;
-//	TestPlayerController pScript;
+	TestPlayerController pScript;
+	GameObject player;
 	GameObject light;
 	Material originalMaterial1;
 	Material originalMaterial2;
 	Material originalMaterial3;
 	Material originalMaterial4;
 	private Renderer renderer;
-	private Dictionary<float, int> test = new Dictionary<float, int> ();
-	// ボタン押下許可フラグ
-	private bool isPushReloadButton = false;
-
-	// ボタンが押されてから次にまた押せるまでの時間(秒)
-	private TimeSpan allowTime = new TimeSpan(0, 0, 1);
-
-	// 前回ボタンが押された時点と現在時間との差分を格納
-	private TimeSpan pastTime;
-	private DateTime reloadTime;
+	private int PLAYER_POSITION_Y_MAX = 1150;
+	private int BLOCK_POSITION_Y_MAX = 1100;
+	int dropBlockNum = 0;
 
 	// Use this for initialization
 	void Start () {
 		mainCam = Camera.main.gameObject;
-		blockController = mainCam.GetComponent<TestBlockController> ();
-		moveObjects = new GameObject[blockController.getRow(),blockController.getLine()+2];
-		countDel = new int[blockController.getRow()];
+		bcScript = mainCam.GetComponent<TestBlockController> ();
+		moveObjects = new GameObject[bcScript.getRow(),bcScript.getLine()+2];
+		countDel = new int[bcScript.getRow()];
 		gameManagerController = GameObject.Find("GameManager").GetComponent<TestGameManagerController> ();
-//		pScript = GameObject.Find ("Player").GetComponent<TestPlayerController> ();
+		pScript = GameObject.Find ("Player").GetComponent<TestPlayerController> ();
 		light = GameObject.Find ("BlockLight");
+		player = GameObject.Find ("Player");
 		renderer = GetComponent<Renderer>();
 		originalMaterial1 = new Material(renderer.material);
 //		GameObject.Find("RayCutMain").GetComponent<BoxCollider> ().enabled = false;
 	}
 
 	void Update () {
-		if (isPushReloadButton) {
-			pastTime = DateTime.Now - reloadTime;
-			if(pastTime > allowTime){
-				isPushReloadButton = false;
-			}
-		}
+		
 	}
 
 	// マウスボタンが押された時にコールされる
 	void OnMouseDown() {
-		if (isPushReloadButton) {
-			return;
-		}
-		isPushReloadButton = true;
 		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
 		RaycastHit hit = new RaycastHit ();
 		if (Physics.Raycast (ray, out hit)) {
@@ -72,29 +58,29 @@ public class TestBlockStatusController : MonoBehaviour {
 				GameObject hitObj = hit.collider.gameObject;
 				// オブジェクトの名前取得
 				string ballName = hitObj.name;
+				print ("ballName="+ballName);
 				if (ballName.StartsWith ("Block")) {
-//					float distance = Vector2.Distance (pScript.getPosition (), hitObj.transform.position);
-//					if (distance < 0.5f) {
+					float distance = Vector2.Distance (pScript.getPosition (), hitObj.transform.position);
+					if (distance < 142) {
 						firstBlock = hitObj;
 						lastBlock = hitObj;
 						prominentColor (hitObj);
 						currentName = hitObj.name;
 						// 消すブロックをリストに格納
-						PushToList (hitObj);
+						pushToList (hitObj);
 						// ヒットしたブロックの座標を取得
-						int matrixX = blockController.getMatrixX ((int)hitObj.transform.position.x);
-						int matrixY = blockController.getMatrixY ((int)hitObj.transform.position.y);
+						int matrixX = bcScript.getMatrixX ((int)hitObj.transform.position.x);
+						int matrixY = bcScript.getMatrixY ((int)hitObj.transform.position.y);
 //					print (matrixX + "," + matrixY);
 						// ヒットしたブロックの存在判定をfalse
-						blockController.setIsExistBlock (matrixX, matrixY, false);
-//					}
+						bcScript.setIsExistBlock (matrixX, matrixY, false);
+					}
 				} 
 			}
 		}
-		reloadTime = DateTime.Now;
 	}
-
-	// ドラッグしている間コールされ続ける
+//
+//	// ドラッグしている間コールされ続ける
 	void OnMouseDrag() {
 		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
 		RaycastHit hit = new RaycastHit ();
@@ -107,23 +93,22 @@ public class TestBlockStatusController : MonoBehaviour {
 					if (distance < 142) {
 						lastBlock = hitObj;
 						// 消すブロックをリストに格納
-						PushToList (hitObj);
+						pushToList (hitObj);
 						// 連結のライン用事
 						gameManagerController.lineDrawing (removableBallList[removableBallList.Count - 2], lastBlock);
 						// ドラッグしたブロックの座標を算出
-						int matrixX = blockController.getMatrixX ((int)hitObj.transform.position.x);
-						int matrixY = blockController.getMatrixY ((int)hitObj.transform.position.y);
+						int matrixX = bcScript.getMatrixX ((int)hitObj.transform.position.x);
+						int matrixY = bcScript.getMatrixY ((int)hitObj.transform.position.y);
 						// ブロックの存在有無を格納
-						blockController.setIsExistBlock (matrixX, matrixY, false);
+						bcScript.setIsExistBlock (matrixX, matrixY, false);
 					}
 				} 
 			}
 		}
 	}
-
-	// マウスボタンを離した時にコールされる
+//
+//	// マウスボタンを離した時にコールされる
 	void OnMouseUp() {
-		
 		light.SetActive (true);
 		// オブジェクト発光消す
 		GameObject[] blueBlocks = GameObject.FindGameObjectsWithTag("CubeBlue");
@@ -156,7 +141,7 @@ public class TestBlockStatusController : MonoBehaviour {
 		lastBlock = null;
 
 		// Rayを遮断
-//		GameObject.Find("RayCutMain").GetComponent<BoxCollider> ().enabled = true;
+//		print(GameObject.Find("RayCutMain"));
 
 		// ブロック削除
 		gameManagerController.StartCoroutine ("DeleteBlock", removableBallList);
@@ -168,9 +153,9 @@ public class TestBlockStatusController : MonoBehaviour {
 		}
 	}
 
-	void PushToList (GameObject obj) {
+	public void pushToList (GameObject obj) {
+//		print ("pushToList");
 		removableBallList.Add (obj);
-		//		ChangeColor(obj, 0.5f);
 	}
 
 	// 選んだ色のブロックのみ際立たせる
@@ -212,5 +197,58 @@ public class TestBlockStatusController : MonoBehaviour {
 		} else {
 			// 何もしない
 		}
+	}
+
+	// 時間差でブロックを動かす
+	public IEnumerator MoveBlock(float wait)
+	{
+		yield return new WaitForSeconds(wait);
+		countDel = new int[bcScript.getRow()];
+		float playerPosX = player.transform.position.x;
+		int matrixPlayerPosX = pScript.getMatrixX ((int)playerPosX);
+		float playerPosY = player.transform.position.y;
+		int matrixPlayerPosY = pScript.getMatrixY ((int)playerPosY);
+		// 列ごとに空白マスの個数を算出、ブロックを下に移動
+		for (int i = 0; i < bcScript.getRow (); i++) {
+			// 最も下の行(行数-1)から最高位(インデックス2)までブロックが存在しているかを判定
+			for (int j = bcScript.getLine () + 1; j > 1; j--) {
+				// 存在している場合：countDelが0の場合落下しない/countDelがそれ以外の場合はcountDelの値分落下
+				// 存在してない場合：存在していないブロックの個数をcountDel[]に格納
+				if (bcScript.getIsExistBlock (i, j)) {
+					if (countDel [i] > 0) {
+						// ブロック移動先のindexYを取得
+						int destinationY = j + countDel [i];
+						// 移動するブロックを取得
+						GameObject dropBlock = bcScript.getBlock (i, j);
+						// ブロック移動先を算出
+						int dropBlockPosY = destinationY * 100;
+						// 落下
+						iTween.MoveTo (dropBlock, iTween.Hash ("x", dropBlock.transform.position.x, "y", BLOCK_POSITION_Y_MAX - dropBlockPosY));
+						yield return new WaitForSeconds (0.05f);
+
+						// 移動元のsetExistをfalseにする
+						bcScript.setIsExistBlock (i, j, false);
+						// 移動先のsetExistをtrueにする
+						bcScript.setIsExistBlock (i, destinationY, true);
+						// 移動先の座標にブロックを入れ替える
+						bcScript.setBlock (i, destinationY, dropBlock);
+						print("countDel="+countDel[i]);
+					}
+				} else {
+					countDel [i] = countDel [i] + 1;
+				}
+
+				// キャラの落下処理
+				if (j == 2 && i == matrixPlayerPosX) {
+					iTween.MoveTo (player, iTween.Hash ("x", player.transform.position.x, "y", PLAYER_POSITION_Y_MAX - (j + countDel [i])*100));
+					yield return new WaitForSeconds (0.05f);
+				}
+			}
+		}
+		// 落下するブロックの数だけ遅延させる
+		for (int i = 0; i < bcScript.getRow (); i++) {
+			dropBlockNum += countDel [i];
+		}
+		yield return new WaitForSeconds(dropBlockNum * 0.05f);
 	}
 }
