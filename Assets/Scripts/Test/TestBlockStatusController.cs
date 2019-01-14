@@ -12,58 +12,47 @@ public class TestBlockStatusController : MonoBehaviour {
 	List<GameObject> moveBlockList = new List<GameObject>();
 	List<float> moveBlockPosYList = new List<float>();
 	GameObject mainCam;
-	TestBlockController blockController;
+	TestBlockController bcScript;
 	// 落下予定のオブジェクトを入れる配列
 	public GameObject[,] moveObjects;
 	int[] countDel;
 	TestGameManagerController gameManagerController;
-//	TestPlayerController pScript;
+	TestPlayerController pScript;
+	GameObject player;
 	GameObject light;
 	Material originalMaterial1;
 	Material originalMaterial2;
 	Material originalMaterial3;
 	Material originalMaterial4;
 	private Renderer renderer;
-	private Dictionary<float, int> test = new Dictionary<float, int> ();
-	// ボタン押下許可フラグ
-	private bool isPushReloadButton = false;
-
-	// ボタンが押されてから次にまた押せるまでの時間(秒)
-	private TimeSpan allowTime = new TimeSpan(0, 0, 1);
-
-	// 前回ボタンが押された時点と現在時間との差分を格納
-	private TimeSpan pastTime;
-	private DateTime reloadTime;
+	private int PLAYER_POSITION_Y_MAX = 1150;
+	private int BLOCK_POSITION_Y_MAX = 1100;
+	int dropBlockNum = 0;
+	List<GameObject> readCrumbsList = new List<GameObject>();
+	List<int> moveListX = new List<int>();
+	List<int> moveListY = new List<int>();
 
 	// Use this for initialization
 	void Start () {
 		mainCam = Camera.main.gameObject;
-		blockController = mainCam.GetComponent<TestBlockController> ();
-		moveObjects = new GameObject[blockController.getRow(),blockController.getLine()+2];
-		countDel = new int[blockController.getRow()];
+		bcScript = mainCam.GetComponent<TestBlockController> ();
+		moveObjects = new GameObject[bcScript.getRow(),bcScript.getLine()+2];
+		countDel = new int[bcScript.getRow()];
 		gameManagerController = GameObject.Find("GameManager").GetComponent<TestGameManagerController> ();
-//		pScript = GameObject.Find ("Player").GetComponent<TestPlayerController> ();
+		pScript = GameObject.Find ("Player").GetComponent<TestPlayerController> ();
 		light = GameObject.Find ("BlockLight");
+		player = GameObject.Find ("Player");
 		renderer = GetComponent<Renderer>();
 		originalMaterial1 = new Material(renderer.material);
 //		GameObject.Find("RayCutMain").GetComponent<BoxCollider> ().enabled = false;
 	}
 
 	void Update () {
-		if (isPushReloadButton) {
-			pastTime = DateTime.Now - reloadTime;
-			if(pastTime > allowTime){
-				isPushReloadButton = false;
-			}
-		}
+		
 	}
 
 	// マウスボタンが押された時にコールされる
 	void OnMouseDown() {
-		if (isPushReloadButton) {
-			return;
-		}
-		isPushReloadButton = true;
 		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
 		RaycastHit hit = new RaycastHit ();
 		if (Physics.Raycast (ray, out hit)) {
@@ -71,105 +60,244 @@ public class TestBlockStatusController : MonoBehaviour {
 				// ヒットしたオブジェクト取得
 				GameObject hitObj = hit.collider.gameObject;
 				// オブジェクトの名前取得
-				string ballName = hitObj.name;
-				if (ballName.StartsWith ("Block")) {
-//					float distance = Vector2.Distance (pScript.getPosition (), hitObj.transform.position);
-//					if (distance < 0.5f) {
+				string blockName = hitObj.name;
+//				print ("ballName="+blockName);
+				if (blockName.StartsWith ("Block")) {
+					float distance = Vector2.Distance (pScript.getPosition (), hitObj.transform.position);
+					if (distance < 142) {
 						firstBlock = hitObj;
 						lastBlock = hitObj;
-//						prominentColor (hitObj);
+						prominentColor (hitObj);
 						currentName = hitObj.name;
 						// 消すブロックをリストに格納
-						PushToList (hitObj);
+						pushToList (hitObj);
 						// ヒットしたブロックの座標を取得
-						int matrixX = blockController.getMatrixX ((int)hitObj.transform.position.x);
-						int matrixY = blockController.getMatrixY ((int)hitObj.transform.position.y);
-//					print (matrixX + "," + matrixY);
+						int matrixX = bcScript.getMatrixX ((int)hitObj.transform.position.x);
+						int matrixY = bcScript.getMatrixY ((int)hitObj.transform.position.y);
+//						print (matrixX + "," + matrixY);
 						// ヒットしたブロックの存在判定をfalse
-						blockController.setIsExistBlock (matrixX, matrixY, false);
-//					}
-				} 
+						bcScript.setIsExistBlock (matrixX, matrixY, false);
+					}
+				} else if (blockName.StartsWith ("CubeCollider")) {
+					float distance = Vector2.Distance (player.transform.position, hitObj.transform.position);
+					if (distance < 181) {
+						firstBlock = hitObj;
+						lastBlock = hitObj;
+						currentName = hitObj.name;
+						readCrumbsList.Add (hitObj);
+						moveListX.Add (pScript.getMatrixX ((int)hitObj.transform.position.x));
+						moveListY.Add ((900 - (int)hitObj.transform.position.y) / 100 + 2);
+						gameManagerController.lineDrawing (player, lastBlock);
+					}
+				}
 			}
 		}
-		reloadTime = DateTime.Now;
 	}
-
-	// ドラッグしている間コールされ続ける
+//
+//	// ドラッグしている間コールされ続ける
 	void OnMouseDrag() {
 		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
 		RaycastHit hit = new RaycastHit ();
+		float distance = 0;
 		if (Physics.Raycast (ray, out hit)) {
 			if (hit.collider != null) {
 				GameObject hitObj = hit.collider.gameObject;
-				if (hitObj.name == currentName && lastBlock != hitObj) {
-					float distance = Vector2.Distance (hitObj.transform.position, lastBlock.transform.position);
-//					print (distance);
+				string objectName = hitObj.name;
+
+				if (objectName.StartsWith ("Block")) {
+					if (hitObj.name == currentName && lastBlock != hitObj) {
+						distance = Vector2.Distance (hitObj.transform.position, lastBlock.transform.position);
+//						print (distance);
+						if (distance < 142) {
+							lastBlock = hitObj;
+							// 消すブロックをリストに格納
+							pushToList (hitObj);
+							// 連結のライン用事
+							gameManagerController.lineDrawing (removableBallList [removableBallList.Count - 2], lastBlock);
+							// ドラッグしたブロックの座標を算出
+							int matrixX = bcScript.getMatrixX ((int)hitObj.transform.position.x);
+							int matrixY = bcScript.getMatrixY ((int)hitObj.transform.position.y);
+							// ブロックの存在有無を格納
+							bcScript.setIsExistBlock (matrixX, matrixY, false);
+						}
+					}
+				} else if (objectName.StartsWith ("CubeCollider")) {
+//					print ("CubeDrag");
+					distance = Vector2.Distance (hitObj.transform.position, lastBlock.transform.position);
+//					print("distance="+distance);
 					if (distance < 142) {
 						lastBlock = hitObj;
-						// 消すブロックをリストに格納
-						PushToList (hitObj);
-						// 連結のライン用事
-						gameManagerController.lineDrawing (removableBallList[removableBallList.Count - 2], lastBlock);
-						// ドラッグしたブロックの座標を算出
-						int matrixX = blockController.getMatrixX ((int)hitObj.transform.position.x);
-						int matrixY = blockController.getMatrixY ((int)hitObj.transform.position.y);
-						// ブロックの存在有無を格納
-						blockController.setIsExistBlock (matrixX, matrixY, false);
+						readCrumbsList.Add (hitObj);
+						moveListX.Add (pScript.getMatrixX ((int)hitObj.transform.position.x));
+						moveListY.Add ((900 - (int)hitObj.transform.position.y) / 100 + 2);
+						gameManagerController.lineDrawing (readCrumbsList [readCrumbsList.Count - 2], lastBlock);
 					}
-				} 
+				}
+			}
+		}
+	}
+		
+
+	public void mouseUp() {
+		if (removableBallList.Count != 0) {
+			light.SetActive (true);
+			// オブジェクト発光消す
+			GameObject[] blueBlocks = GameObject.FindGameObjectsWithTag("CubeBlue");
+			foreach (GameObject block in blueBlocks) {
+				Renderer r = block.GetComponent<Renderer> (); 
+				r.material.EnableKeyword("_EMISSION");
+				r.material.SetColor("_EmissionColor", new Color(0,0,0));
+			}
+			GameObject[] greenBlocks = GameObject.FindGameObjectsWithTag("CubeGreen");
+			foreach (GameObject block in greenBlocks) {
+				Renderer r = block.GetComponent<Renderer> (); 
+				r.material.EnableKeyword("_EMISSION");
+				r.material.SetColor("_EmissionColor", new Color(0,0,0));
+			}
+			GameObject[] redBlocks = GameObject.FindGameObjectsWithTag("CubeRed");
+			foreach (GameObject block in redBlocks) {
+				Renderer r = block.GetComponent<Renderer> (); 
+				r.material.EnableKeyword("_EMISSION");
+				r.material.SetColor("_EmissionColor", new Color(0,0,0));
+			}
+			GameObject[] yellowBlocks = GameObject.FindGameObjectsWithTag("CubeYellow");
+			foreach (GameObject block in yellowBlocks) {
+				Renderer r = block.GetComponent<Renderer> (); 
+				r.material.EnableKeyword("_EMISSION");
+				r.material.SetColor("_EmissionColor", new Color(0,0,0));
+			}
+
+			int remove_cnt = removableBallList.Count;
+			firstBlock = null;
+			lastBlock = null;
+
+			// Rayを遮断
+			//		print(GameObject.Find("RayCutMain"));
+
+			// ブロック削除
+			gameManagerController.StartCoroutine ("DeleteBlock", removableBallList);
+			// ブロック落下
+			gameManagerController.StartCoroutine("MoveBlock", (removableBallList.Count-1)*0.03f);
+			GameObject[] lines = GameObject.FindGameObjectsWithTag("Line");
+			foreach (GameObject line in lines) {
+				Destroy(line);
+			}
+		} else {
+//			print ("MoveUpCollider");
+			StartCoroutine ("movePlayer");
+			GameObject[] lines = GameObject.FindGameObjectsWithTag("Line");
+			foreach (GameObject line in lines) {
+				Destroy(line);
 			}
 		}
 	}
 
-	// マウスボタンを離した時にコールされる
-	void OnMouseUp() {
-		
-//		light.SetActive (true);
-		// オブジェクト発光消す
-		GameObject[] blueBlocks = GameObject.FindGameObjectsWithTag("CubeBlue");
-		foreach (GameObject block in blueBlocks) {
-			Renderer r = block.GetComponent<Renderer> (); 
-			r.material.EnableKeyword("_EMISSION");
-			r.material.SetColor("_EmissionColor", new Color(0,0,0));
-		}
-		GameObject[] greenBlocks = GameObject.FindGameObjectsWithTag("CubeGreen");
-		foreach (GameObject block in greenBlocks) {
-			Renderer r = block.GetComponent<Renderer> (); 
-			r.material.EnableKeyword("_EMISSION");
-			r.material.SetColor("_EmissionColor", new Color(0,0,0));
-		}
-		GameObject[] redBlocks = GameObject.FindGameObjectsWithTag("CubeRed");
-		foreach (GameObject block in redBlocks) {
-			Renderer r = block.GetComponent<Renderer> (); 
-			r.material.EnableKeyword("_EMISSION");
-			r.material.SetColor("_EmissionColor", new Color(0,0,0));
-		}
-		GameObject[] yellowBlocks = GameObject.FindGameObjectsWithTag("CubeYellow");
-		foreach (GameObject block in yellowBlocks) {
-			Renderer r = block.GetComponent<Renderer> (); 
-			r.material.EnableKeyword("_EMISSION");
-			r.material.SetColor("_EmissionColor", new Color(0,0,0));
-		}
-
-		int remove_cnt = removableBallList.Count;
-		firstBlock = null;
-		lastBlock = null;
-
-		// Rayを遮断
-//		GameObject.Find("RayCutMain").GetComponent<BoxCollider> ().enabled = true;
-
-		// ブロック削除
-		gameManagerController.StartCoroutine ("DeleteBlock", removableBallList);
-		// ブロック落下
-		gameManagerController.StartCoroutine("MoveBlock", (removableBallList.Count-1)*0.03f);
-		GameObject[] lines = GameObject.FindGameObjectsWithTag("Line");
-		foreach (GameObject line in lines) {
-			Destroy(line);
+	public IEnumerator movePlayer() {
+		for (int i = 1; i < readCrumbsList.Count; i++) {
+			float positionX = moveListX[i] * 100;
+			float positionY = (1100 - moveListY[i] * 100) -50;
+//						print ("moveListX=" + moveListX[i] + ", moveListY=" + moveListY[i]);
+//						print ("positionX=" + positionX + ", positionY=" + positionX);
+			iTween.MoveTo(player, iTween.Hash("x", positionX, "y", positionY));
+			yield return new WaitForSeconds(0.02f);
 		}
 	}
 
-	void PushToList (GameObject obj) {
+	public void pushToList (GameObject obj) {
 		removableBallList.Add (obj);
-		//		ChangeColor(obj, 0.5f);
+	}
+
+	// 選んだ色のブロックのみ際立たせる
+	// 消すブロックを光らせる
+	// DirectionLightのBlockをoffにする
+	public void prominentColor(GameObject obj) {
+		if (obj.tag == "CubeBlue") {// Blueをタップした場合
+			light.SetActive(false);
+			GameObject[] blueBlocks = GameObject.FindGameObjectsWithTag(obj.tag);
+			foreach (GameObject block in blueBlocks) {
+				Renderer r = block.GetComponent<Renderer> (); 
+				r.material.EnableKeyword("_EMISSION");
+				r.material.SetColor("_EmissionColor", new Color(0,0,1));
+			}
+		} else if (obj.tag == "CubeGreen") {// Greenをタップした場合
+			light.SetActive(false);
+			GameObject[] greenBlocks = GameObject.FindGameObjectsWithTag(obj.tag);
+			foreach (GameObject block in greenBlocks) {
+				Renderer r = block.GetComponent<Renderer> (); 
+				r.material.EnableKeyword("_EMISSION");
+				r.material.SetColor("_EmissionColor", new Color(0,1,0));
+			}
+		} else if (obj.tag == "CubeRed") {// Redをタップした場合
+			light.SetActive(false);
+			GameObject[] redBlocks = GameObject.FindGameObjectsWithTag(obj.tag);
+			foreach (GameObject block in redBlocks) {
+				Renderer r = block.GetComponent<Renderer> (); 
+				r.material.EnableKeyword("_EMISSION");
+				r.material.SetColor("_EmissionColor", new Color(1,0,0));
+			}
+		} else if (obj.tag == "CubeYellow") {// Yellowをタップした場合
+			light.SetActive(false);
+			GameObject[] yellowBlocks = GameObject.FindGameObjectsWithTag(obj.tag);
+			foreach (GameObject block in yellowBlocks) {
+				Renderer r = block.GetComponent<Renderer> (); 
+				r.material.EnableKeyword("_EMISSION");
+				r.material.SetColor("_EmissionColor", new Color(1,1,0));
+			}
+		} else {
+			// 何もしない
+		}
+	}
+
+	// 時間差でブロックを動かす
+	public IEnumerator MoveBlock(float wait)
+	{
+		yield return new WaitForSeconds(wait);
+		countDel = new int[bcScript.getRow()];
+		float playerPosX = player.transform.position.x;
+		int matrixPlayerPosX = pScript.getMatrixX ((int)playerPosX);
+		float playerPosY = player.transform.position.y;
+		int matrixPlayerPosY = pScript.getMatrixY ((int)playerPosY);
+		// 列ごとに空白マスの個数を算出、ブロックを下に移動
+		for (int i = 0; i < bcScript.getRow (); i++) {
+			// 最も下の行(行数-1)から最高位(インデックス2)までブロックが存在しているかを判定
+			for (int j = bcScript.getLine () + 1; j > 1; j--) {
+				// 存在している場合：countDelが0の場合落下しない/countDelがそれ以外の場合はcountDelの値分落下
+				// 存在してない場合：存在していないブロックの個数をcountDel[]に格納
+				if (bcScript.getIsExistBlock (i, j)) {
+					if (countDel [i] > 0) {
+						// ブロック移動先のindexYを取得
+						int destinationY = j + countDel [i];
+						// 移動するブロックを取得
+						GameObject dropBlock = bcScript.getBlock (i, j);
+						// ブロック移動先を算出
+						int dropBlockPosY = destinationY * 100;
+						// 落下
+						iTween.MoveTo (dropBlock, iTween.Hash ("x", dropBlock.transform.position.x, "y", BLOCK_POSITION_Y_MAX - dropBlockPosY));
+						yield return new WaitForSeconds (0.05f);
+
+						// 移動元のsetExistをfalseにする
+						bcScript.setIsExistBlock (i, j, false);
+						// 移動先のsetExistをtrueにする
+						bcScript.setIsExistBlock (i, destinationY, true);
+						// 移動先の座標にブロックを入れ替える
+						bcScript.setBlock (i, destinationY, dropBlock);
+						print("countDel="+countDel[i]);
+					}
+				} else {
+					countDel [i] = countDel [i] + 1;
+				}
+
+				// キャラの落下処理
+				if (j == 2 && i == matrixPlayerPosX) {
+					iTween.MoveTo (player, iTween.Hash ("x", player.transform.position.x, "y", PLAYER_POSITION_Y_MAX - (j + countDel [i])*100));
+					yield return new WaitForSeconds (0.05f);
+				}
+			}
+		}
+		// 落下するブロックの数だけ遅延させる
+		for (int i = 0; i < bcScript.getRow (); i++) {
+			dropBlockNum += countDel [i];
+		}
+		yield return new WaitForSeconds(dropBlockNum * 0.05f);
 	}
 }

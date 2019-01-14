@@ -64,6 +64,7 @@ public class GameManagerController : MonoBehaviour {
 
 	// タップされた時にコールされる
 	void OnMouseDown() {
+		print ("タップ");
 		if (isPushReloadButton) {
 			return;
 		}
@@ -249,7 +250,7 @@ public class GameManagerController : MonoBehaviour {
 			float positionY = 0.8f - moveListY[i] * 0.4f - 0.6f;
 //			print ("readCrumbsList.Count="+readCrumbsList.Count);
 //			print ("positionX=" + positionX + ", positionY=" + positionY);
-			print ("moveListX=" + moveListX[i] + ", moveListY=" + moveListY[i]);
+//			print ("moveListX=" + moveListX[i] + ", moveListY=" + moveListY[i]);
 			iTween.MoveTo(player, iTween.Hash("x", positionX, "y", positionY));
 			yield return new WaitForSeconds(0.08f);
 		}
