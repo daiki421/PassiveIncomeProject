@@ -33,11 +33,9 @@ public class TestCameraController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-//		if (mainCam.transform.position.y < GameObject.Find ("Floors").transform.position.y + 667) {
-//			mainCam.transform.position = new Vector3 (mainCam.transform.position.x, 300, -500);
-//		} else {
-//			
-//		}
+		this.transform.position = (new Vector3(Mathf.Clamp(this.transform.position.x, GameObject.Find("Floor4_1").transform.position.x -0.1f, GameObject.Find("Floor4_1").transform.position.x + 0.1f),
+			Mathf.Clamp(this.transform.position.y, GameObject.Find("Floor4_1").transform.position.y + 500, this.transform.position.y),
+			this.transform.position.z));
 	}
 
 	public void moveCamera(int dropBlockPosY) {

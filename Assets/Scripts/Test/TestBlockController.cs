@@ -17,13 +17,19 @@ public class TestBlockController : MonoBehaviour {
 	public GameObject[,] blocks;
 	public Material[] _material;
 	private int materialNum;
-
+	TestEnemyController ecScript;
+	List<int> rows;
+	List<int> lines;
 	void Start () {
 		existObjects = new bool[BLOCK_ROW, BLOCK_LINE+2];
 		blocks = new GameObject[BLOCK_ROW, BLOCK_LINE+2];
-		createObject(BLOCK_ROW, BLOCK_LINE);
 		setExistsInArray (BLOCK_ROW, BLOCK_LINE+2);
 		materialNum = 0;
+		ecScript = GameObject.Find("Enemys").GetComponent<TestEnemyController> ();
+		rows = ecScript.getEnemyRow ();
+		lines = ecScript.getEnemyLine ();
+		ecScript.createEnemy (rows, lines);
+		createObject(BLOCK_ROW, BLOCK_LINE);
 	}
 
 	// ゴール設置列ランダム取得
@@ -36,23 +42,26 @@ public class TestBlockController : MonoBehaviour {
 		int goalRow = getGoalRow ();
 		for (int i = 0; i < BLOCK_ROW; i++) {
 			for (int j = 2; j < BLOCK_LINE + 2; j++) {
-				// オブジェクト名のナンバー
-//				int objectNum = Random.Range(1, 5); // 本番
-				int objectNum = Random.Range(1, 2);
-				if (i == goalRow && j == BLOCK_LINE + 1) {
-					GameObject.Find ("Goal").transform.position = new Vector2 (100 * goalRow, 900 - (j - 2) * 100);
+				if (i == rows [i] && j == lines [i]) {
 				} else {
-					// プレファブ取得
-					GameObject cubePrefab = GameObject.Find("Block"+objectNum);
-					// オブジェクトのポジション設定
-					blockPosX = 100 * i;
-					blockPosY = 900 - (j - 2) * 100;
-					Vector2 blockPosition = new Vector2(blockPosX, blockPosY);
-					// プレファブからインスタンス生成
-					GameObject block = Instantiate(cubePrefab, blockPosition, Quaternion.AngleAxis(Random.Range(-1, 1), Vector3.up)) as GameObject;
-					// オブジェクトのスケール設定
-					block.transform.localScale = Vector3.one * scale;
-					setBlock (i, j, block);
+					// オブジェクト名のナンバー
+					//				int objectNum = Random.Range(1, 5); // 本番
+					int objectNum = Random.Range(1, 2);
+					if (i == goalRow && j == BLOCK_LINE + 1) {
+						GameObject.Find ("Goal").transform.position = new Vector3 (100 * goalRow, 900 - (j - 2) * 100, 80);
+					} else {
+						// プレファブ取得
+						GameObject cubePrefab = GameObject.Find("Block"+objectNum);
+						// オブジェクトのポジション設定
+						blockPosX = 100 * i;
+						blockPosY = 900 - (j - 2) * 100;
+						Vector2 blockPosition = new Vector2(blockPosX, blockPosY);
+						// プレファブからインスタンス生成
+						GameObject block = Instantiate(cubePrefab, blockPosition, Quaternion.AngleAxis(Random.Range(-1, 1), Vector3.up)) as GameObject;
+						// オブジェクトのスケール設定
+						block.transform.localScale = Vector3.one * scale;
+						setBlock (i, j, block);
+					}
 				}
 			}
 		}
