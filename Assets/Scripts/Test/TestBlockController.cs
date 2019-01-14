@@ -42,29 +42,30 @@ public class TestBlockController : MonoBehaviour {
 		int goalRow = getGoalRow ();
 		for (int i = 0; i < BLOCK_ROW; i++) {
 			for (int j = 2; j < BLOCK_LINE + 2; j++) {
-				if (i == rows [i] && j == lines [i]) {
+				// オブジェクト名のナンバー
+				//				int objectNum = Random.Range(1, 5); // 本番
+				int objectNum = Random.Range(1, 2);
+				if (i == goalRow && j == BLOCK_LINE + 1) {
+					GameObject.Find ("Goal").transform.position = new Vector3 (100 * goalRow, 900 - (j - 2) * 100, 80);
 				} else {
-					// オブジェクト名のナンバー
-					//				int objectNum = Random.Range(1, 5); // 本番
-					int objectNum = Random.Range(1, 2);
-					if (i == goalRow && j == BLOCK_LINE + 1) {
-						GameObject.Find ("Goal").transform.position = new Vector3 (100 * goalRow, 900 - (j - 2) * 100, 80);
-					} else {
-						// プレファブ取得
-						GameObject cubePrefab = GameObject.Find("Block"+objectNum);
-						// オブジェクトのポジション設定
-						blockPosX = 100 * i;
-						blockPosY = 900 - (j - 2) * 100;
-						Vector2 blockPosition = new Vector2(blockPosX, blockPosY);
-						// プレファブからインスタンス生成
-						GameObject block = Instantiate(cubePrefab, blockPosition, Quaternion.AngleAxis(Random.Range(-1, 1), Vector3.up)) as GameObject;
-						// オブジェクトのスケール設定
-						block.transform.localScale = Vector3.one * scale;
-						setBlock (i, j, block);
-					}
+					// プレファブ取得
+					GameObject cubePrefab = GameObject.Find("Block"+objectNum);
+					// オブジェクトのポジション設定
+					blockPosX = 100 * i;
+					blockPosY = 900 - (j - 2) * 100;
+					Vector2 blockPosition = new Vector2(blockPosX, blockPosY);
+					// プレファブからインスタンス生成
+					GameObject block = Instantiate(cubePrefab, blockPosition, Quaternion.AngleAxis(Random.Range(-1, 1), Vector3.up)) as GameObject;
+					// オブジェクトのスケール設定
+					block.transform.localScale = Vector3.one * scale;
+					setBlock (i, j, block);
 				}
 			}
 		}
+		for (int i = 0; i < rows.Count; i++) {
+			Destroy (getBlock (rows [i], lines [i]));
+		}
+
 	}
 
 	// ブロックの存在判定を配列に格納
